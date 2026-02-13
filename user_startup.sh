@@ -7,6 +7,9 @@ systemctl --user start pipewire pipewire-pulse wireplumber
 echo "#!/bin/sh
 /usr/lib/xdg-desktop-portal & #REMPLACER PAR DBUS
 /usr/lib/xdg-desktop-portal-gtk &
+VBoxClient-all &
+xrandr --output Virtual-1 --mode 1920x1080
+xrandr --output Virtual-2 --mode 1920x1080
 sleep 2
 xrdb merge pathToXresourcesFile
 xrdb merge /home/${MY_USER_NAME}/.Xresources 
@@ -31,5 +34,7 @@ source /home/${MY_USER_NAME}/.bashrc
 sed -i "\|/home/${MY_USER_NAME}/user_startup.sh|d" /home/${MY_USER_NAME}/.bash_profile
 
 git clone https://github.com/NvChad/starter /home/${MY_MAIN_USER}/.config/nvim && nvim
+
+
 
 rm -- "$0"

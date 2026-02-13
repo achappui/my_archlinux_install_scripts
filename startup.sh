@@ -6,7 +6,7 @@ MY_MAIN_USER=
 MY_MAIN_USER_PASSWORD=
 MY_HOSTNAME=
 
-MY_ROOT_SIZE="20G"
+MY_ROOT_SIZE="30G"
 MY_SWAP_SIZE="2G"
 MY_EFI_SIZE="1G"
 
@@ -20,7 +20,7 @@ MY_CLOCK_REGION=Europe/Zurich
 MY_LOCALE="en_US.UTF-8 UTF-8"
 MY_LANG=en_US.UTF-8
 MY_KEYMAP=us
-MY_PACMAN="virtualbox-guest-utils xorg-xset xdg-utils discord openssl openssh xorg-xsetroot imlib2 dash xclip acpi sudo ripgrep gd dbus xdg-desktop-portal xdg-desktop-portal-gtk xorg-server xorg-xinit xorg-xrandr xf86-input-libinput libx11 libxft libxinerama nvim pipewire pipewire-pulse wireplumber networkmanager mpv firefox lf feh zip unzip tar ntfs-3g exfat-utils fuse-exfat dosfstools btrfs-progs xfsprogs e2fsprogs base-devel gcc make curl wget grub efibootmgr docker-buildx intel-ucode man-db man-pages texinfo git rustup python python-pip nodejs npm docker docker-compose  noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-dejavu ttf-liberation ttf-nerd-fonts-symbols"
+MY_PACMAN="virtualbox-guest-utils xorg-xset code xdg-utils rofi discord openssl openssh xorg-xsetroot imlib2 dash xclip acpi sudo ripgrep gd dbus xdg-desktop-portal xdg-desktop-portal-gtk xorg-server xorg-xinit xorg-xrandr xf86-input-libinput libx11 libxft libxinerama nvim pipewire pipewire-pulse wireplumber networkmanager mpv firefox lf feh zip unzip tar ntfs-3g exfat-utils fuse-exfat dosfstools btrfs-progs xfsprogs e2fsprogs base-devel gcc make curl wget grub efibootmgr docker-buildx intel-ucode man-db man-pages texinfo git rustup python python-pip nodejs npm docker docker-compose  noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-dejavu ttf-liberation ttf-nerd-fonts-symbols"
 
 sed -i "/^set -e/a\\
 MY_CLOCK_REGION='${MY_CLOCK_REGION}'\\
