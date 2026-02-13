@@ -20,7 +20,7 @@ MY_CLOCK_REGION=Europe/Zurich
 MY_LOCALE="en_US.UTF-8 UTF-8"
 MY_LANG=en_US.UTF-8
 MY_KEYMAP=us
-MY_PACMAN="xsetroot imlib2 dash picom acpi sudo rofi ripgrep gd dbus xdg-desktop-portal xdg-desktop-portal-gtk xorg-server xorg-xinit xorg-xrandr xf86-input-libinput libx11 libxft libxinerama nvim pipewire pipewire-pulse wireplumber networkmanager mpv firefox lf feh zip unzip tar ntfs-3g exfat-utils fuse-exfat dosfstools btrfs-progs xfsprogs e2fsprogs base-devel gcc make curl wget grub efibootmgr docker-buildx intel-ucode man-db man-pages texinfo git rustup python python-pip nodejs npm docker docker-compose  noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-dejavu ttf-liberation ttf-nerd-fonts-symbols"
+MY_PACMAN="virtualbox-guest-utils xsetroot imlib2 dash picom acpi sudo rofi ripgrep gd dbus xdg-desktop-portal xdg-desktop-portal-gtk xorg-server xorg-xinit xorg-xrandr xf86-input-libinput libx11 libxft libxinerama nvim pipewire pipewire-pulse wireplumber networkmanager mpv firefox lf feh zip unzip tar ntfs-3g exfat-utils fuse-exfat dosfstools btrfs-progs xfsprogs e2fsprogs base-devel gcc make curl wget grub efibootmgr docker-buildx intel-ucode man-db man-pages texinfo git rustup python python-pip nodejs npm docker docker-compose  noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-dejavu ttf-liberation ttf-nerd-fonts-symbols"
 
 sed -i "/^set -e/a\\
 MY_CLOCK_REGION='${MY_CLOCK_REGION}'\\

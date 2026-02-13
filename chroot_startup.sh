@@ -36,11 +36,11 @@ mv /user_startup.sh /home/${MY_MAIN_USER}/user_startup.sh
 sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
 
 systemctl enable NetworkManager
-systemctl start NetworkManager
-
-systemctl start docker
+systemctl enable docker
+systemctl enable vboxservice.service
 
 usermod -aG docker ${MY_MAIN_USER}
+usermod -aG vboxsf ${MY_MAIN_USER}
 
 mkdir -p /tmp/NerdFont
 curl -L https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip -o /tmp/NerdFont/JetBrainsMono.zip
@@ -64,5 +64,7 @@ make -C /home/${MY_MAIN_USER}/.config/dmenu clean install
 echo "/home/${MY_MAIN_USER}/user_startup.sh" >> /home/${MY_MAIN_USER}/.bash_profile
 echo 'if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then exec startx fi' >> /home/${MY_MAIN_USER}/.bash_profile
 chown -R ${MY_MAIN_USER}:${MY_MAIN_USER} /home/${MY_MAIN_USER}
+
+modprobe -a vboxguest vboxsf vboxvideo
 
 mkinitcpio -P
