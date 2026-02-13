@@ -24,7 +24,7 @@ makepkg -si
 cd ..
 rm -rf yay
 
-yay -Syu --noconfirm --needed linux-headers nvidia-580xx-dkms nvidia-580xx-utils lib32-nvidia-580xx-utils pinta leafpad
+yay -Syu --noconfirm --needed linux-headers pinta leafpad
 
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -37,6 +37,10 @@ sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
 
 systemctl enable NetworkManager
 systemctl start NetworkManager
+
+systemctl start docker
+
+usermod -aG docker ${MY_MAIN_USER}
 
 mkdir -p /tmp/NerdFont
 curl -L https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip -o /tmp/NerdFont/JetBrainsMono.zip
