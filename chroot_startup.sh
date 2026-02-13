@@ -18,14 +18,6 @@ sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
 
 pacman -Syu --noconfirm --needed ${MY_PACMAN}
 
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -si
-cd ..
-rm -rf yay
-
-yay -Syu --noconfirm --needed linux-headers pinta leafpad
-
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
