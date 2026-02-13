@@ -14,7 +14,7 @@ echo ${MY_HOSTNAME} > /etc/hostname
 echo "root:${MY_ROOT_PASSWORD}" | chpasswd
 
 
-sed -i '/^\#\[multilib\]/s/^#//; /^\#Include = \/etc\/pacman.d\/mirrorlist/s/^#//' /etc/pacman.conf
+sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
 
 pacman -Syu --noconfirm --needed ${MY_PACMAN}
 
