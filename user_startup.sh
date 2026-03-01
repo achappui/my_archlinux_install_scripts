@@ -11,17 +11,12 @@ rm -rf /home/${MY_USER_NAME}/yay
 yay -Syu --noconfirm --needed linux-headers pinta brave-bin google-chrome nvidia-580xx-dkms nvidia-580xx-utils lib32-nvidia-580xx-utils
 
 echo "#!/bin/sh
-/usr/lib/xdg-desktop-portal & #REMPLACER PAR DBUS
+/usr/lib/xdg-desktop-portal &
 /usr/lib/xdg-desktop-portal-gtk &
-VBoxClient-all &
-xrandr --output Virtual-1 --mode 1920x1080
-xrandr --output Virtual-2 --mode 1920x1080
+
 sleep 2
-xrdb merge pathToXresourcesFile
-xrdb merge /home/${MY_USER_NAME}/.Xresources 
-xbacklight -set 10 &
 feh --bg-fill /home/${MY_USER_NAME}/Pictures/wall/gruv.png &
-xset r rate 180 50 & " > /home/${MY_USER_NAME}/.xinitrc
+ " > /home/${MY_USER_NAME}/.xinitrc
 
 echo "alias 'vi'='nvim'" >> /home/${MY_USER_NAME}/.bashrc
 echo "alias 'sudo'='sudo '" >> /home/${MY_USER_NAME}/.bashrc
