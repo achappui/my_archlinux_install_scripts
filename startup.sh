@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+MY_HOME_PAPA_SSD_NAME=
+MY_HOME_PAPA_HDD_NAME=
+
+MY_HOME_PAPA_IMAC_SSD_NAME=
+MY_HOME_PAPA_IMAC_HDD_NAME=
+
+MY_HOME_MAMAN_SSD_NAME=
+MY_HOME_MAMAN_HDD_NAME=
 
 MY_PREFERED_MIRRORS_REGION=Switzerland,France,Germany,Austria,Italy
 MY_CLOCK_REGION=Europe/Zurich
@@ -19,9 +27,7 @@ MY_HOSTNAME=""
 MY_ROOT_PASSWORD=""
 MY_USER=""
 MY_USER_PASSWORD=""
-
-
-MY_WHICH_COMPUTER="false"
+MY_WHICH_COMPUTER="" #home_papa home_maman ou home_papa_imac
 
 ask_input() {
     PROMPT=$1
@@ -56,16 +62,33 @@ ask_password() {
     done
 }
 
-ask_boolean() {
-    PROMPT=$1
-    VAR_NAME=$2
+ask_choice() {
+    VAR_NAME=$1
+
     while true; do
-        printf "%s [y/n]: " "${PROMPT}"
-        read VALUE
-        case "${VALUE}" in
-            y|Y) eval "${VAR_NAME}='true'"; break ;;
-            n|N) eval "${VAR_NAME}='false'"; break ;;
-            *) echo "Please answer y or n." ;;
+        echo "Select which computer:"
+        echo "1) home_papa"
+        echo "2) home_maman"
+        echo "3) home_papa_imac"
+        printf "Enter choice (1-3): "
+        read CHOICE
+
+        case "$CHOICE" in
+            1)
+                eval "$VAR_NAME='home_papa'"
+                break
+                ;;
+            2)
+                eval "$VAR_NAME='home_maman'"
+                break
+                ;;
+            3)
+                eval "$VAR_NAME='home_papa_imac'"
+                break
+                ;;
+            *)
+                echo "Invalid choice. Please enter 1, 2, or 3."
+                ;;
         esac
     done
 }
@@ -75,7 +98,7 @@ ask_input "Enter Hostname" MY_HOSTNAME
 ask_password "Enter Root Password" MY_ROOT_PASSWORD
 ask_input "Enter User Name" MY_USER
 ask_password "Enter User Password" MY_USER_PASSWORD
-ask_boolean "Is this an iMac?" MY_IS_IMAC
+ask_choice MY_WHICH_COMPUTER
 
 sed -i "/^set -e/a\\
 MY_CLOCK_REGION='${MY_CLOCK_REGION}'\\
@@ -86,11 +109,11 @@ MY_ROOT_PASSWORD='${MY_ROOT_PASSWORD}'\\
 MY_USER='${MY_USER}'\\
 MY_USER_PASSWORD='${MY_USER_PASSWORD}'\\
 MY_HOSTNAME='${MY_HOSTNAME}'\\
-MY_IS_IMAC='${MY_IS_IMAC}'\\
+MY_WHICH_COMPUTER='${MY_WHICH_COMPUTER}'\\
 MY_PACMAN_PACKAGES='${MY_PACMAN_PACKAGES}'" chroot_startup.sh
 
 sed -i "/^set -e/a\\
-MY_IS_IMAC='${MY_IS_IMAC}'\\
+MY_WHICH_COMPUTER='${MY_WHICH_COMPUTER}'\\
 MY_USER='${MY_USER}'" user_startup.sh
 
 pacman-key --init
@@ -100,28 +123,50 @@ reflector --country ${MY_PREFERED_MIRRORS_REGION} \
   --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 pacman -Sy --noconfirm --needed gptfdisk
 
-# ----- CREATE PARTITIONS -----
-# EFI
-sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
+if [ ${MY_WHICH_COMPUTER} = "home_papa" ]; then
+	sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
+	sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
+	sgdisk -n 0:0:+${MY_USER_SIZE} -t 0:8300 -c 0:"${MY_USER_LABEL}" /dev/${MY_USER_DISK_LOCATION}
+	sgdisk -n 0:0:+${MY_SWAP_SIZE} -t 0:8200 -c 0:"${MY_SWAP_LABEL}" /dev/${MY_SWAP_DISK_LOCATION}
+	mkfs.ext4 -F ${MY_ROOT_PARTITION}
+	mkfs.ext4 -F ${MY_USER_PARTITION}
+	mkswap -f ${MY_SWAP_PARTITION}
+	mkfs.fat -F 32 ${MY_EFI_PARTITION}
+	mount ${MY_ROOT_PARTITION} /mnt
+	mount --mkdir ${MY_USER_PARTITION} /mnt/home
+	mount --mkdir ${MY_EFI_PARTITION} /mnt/boot
+	swapon ${MY_SWAP_PARTITION}
+fi
 
-# ROOT
-sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
+if [ ${MY_WHICH_COMPUTER} = "home_maman" ]; then
+	sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
+	sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
+	sgdisk -n 0:0:+${MY_USER_SIZE} -t 0:8300 -c 0:"${MY_USER_LABEL}" /dev/${MY_USER_DISK_LOCATION}
+	sgdisk -n 0:0:+${MY_SWAP_SIZE} -t 0:8200 -c 0:"${MY_SWAP_LABEL}" /dev/${MY_SWAP_DISK_LOCATION}
+	mkfs.ext4 -F ${MY_ROOT_PARTITION}
+	mkfs.ext4 -F ${MY_USER_PARTITION}
+	mkswap -f ${MY_SWAP_PARTITION}
+	mkfs.fat -F 32 ${MY_EFI_PARTITION}
+	mount ${MY_ROOT_PARTITION} /mnt
+	mount --mkdir ${MY_USER_PARTITION} /mnt/home
+	mount --mkdir ${MY_EFI_PARTITION} /mnt/boot
+	swapon ${MY_SWAP_PARTITION}
+fi
 
-# USER
-sgdisk -n 0:0:+${MY_USER_SIZE} -t 0:8300 -c 0:"${MY_USER_LABEL}" /dev/${MY_USER_DISK_LOCATION}
-
-# SWAP
-sgdisk -n 0:0:+${MY_SWAP_SIZE} -t 0:8200 -c 0:"${MY_SWAP_LABEL}" /dev/${MY_SWAP_DISK_LOCATION}
-
-mkfs.ext4 -F ${MY_ROOT_PARTITION}
-mkfs.ext4 -F ${MY_USER_PARTITION}
-mkswap -f ${MY_SWAP_PARTITION}
-mkfs.fat -F 32 ${MY_EFI_PARTITION}
-
-mount ${MY_ROOT_PARTITION} /mnt
-mount --mkdir ${MY_USER_PARTITION} /mnt/home
-mount --mkdir ${MY_EFI_PARTITION} /mnt/boot
-swapon ${MY_SWAP_PARTITION}
+if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
+	sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
+	sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
+	sgdisk -n 0:0:+${MY_USER_SIZE} -t 0:8300 -c 0:"${MY_USER_LABEL}" /dev/${MY_USER_DISK_LOCATION}
+	sgdisk -n 0:0:+${MY_SWAP_SIZE} -t 0:8200 -c 0:"${MY_SWAP_LABEL}" /dev/${MY_SWAP_DISK_LOCATION}
+	mkfs.ext4 -F ${MY_ROOT_PARTITION}
+	mkfs.ext4 -F ${MY_USER_PARTITION}
+	mkswap -f ${MY_SWAP_PARTITION}
+	mkfs.fat -F 32 ${MY_EFI_PARTITION}
+	mount ${MY_ROOT_PARTITION} /mnt
+	mount --mkdir ${MY_USER_PARTITION} /mnt/home
+	mount --mkdir ${MY_EFI_PARTITION} /mnt/boot
+	swapon ${MY_SWAP_PARTITION}
+fi
 
 pacstrap -K /mnt ${MY_PACSTRAP_PACKAGES}
 genfstab -U /mnt >> /mnt/etc/fstab
