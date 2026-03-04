@@ -10,7 +10,7 @@ rm -rf /home/${MY_USER}/yay
 
 yay -Syu --noconfirm --needed ${MY_YAY_PACKAGES}
 
-if [ ${MY_IS_IMAC} = "true" ]; then
+if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
     pacman -Syu --noconfirm --needed mesa libva intel-ucode
 else
 	yay -Syu --noconfirm --needed linux-headers nvidia-580xx-dkms nvidia-580xx-utils lib32-nvidia-580xx-utils

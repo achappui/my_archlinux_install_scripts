@@ -6,20 +6,42 @@ set -e
 #01m = HOME_PAPA_IMAC
 #02 = HOME_MAMAN
 
+#01 = HOME_PAPA
+MY_01_SSD="/dev/nvme0n1"
 
-MY_01_SSD=
+MY_01_EFI_SIZE="+1g"
+MY_01_SWAP_SIZE="+8g"
+MY_01_ROOT_SIZE="0"
 
-MY_01m_SSD=
-MY_01m_HDD=
+MY_01_EFI_PART="/dev/nvme0n1p1"
+MY_01_SWAP_PART="/dev/nvme0n1p2"
+MY_01_ROOT_PART="/dev/nvme0n1p3"
 
-MY_01m_SSD_EFI_SIZE=
-MY_01m_SSD_ROOT_SIZE=
+#01m = HOME_PAPA_IMAC
+MY_01m_SSD="/dev/nvme0n1"
+MY_01m_HDD="/dev/sda"
 
-MY_01m_SSD_EFI_PART=
-MY_01m_SSD_ROOT_PART=
+MY_01m_SSD_EFI_SIZE="+1g"
+MY_01m_SSD_SWAP_SIZE="+1g"
+MY_01m_SSD_ROOT_SIZE="0" #0 = tout le reste
+MY_01m_HDD_HOME_SIZE="0"
 
-MY_HOME_MAMAN_SSD_NAME=
-MY_HOME_MAMAN_HDD_NAME=
+MY_01m_SSD_EFI_PART="/dev/nvme0n1p1"
+MY_01m_SSD_SWAP_PART="/dev/nvme0n1p2"
+MY_01m_SSD_ROOT_PART="/dev/nvme0n1p3"
+MY_01m_HDD_HOME_PART="/dev/sda1"
+
+#02 = HOME_MAMAN
+MY_02_SSD="/dev/sda"
+
+MY_02_EFI_SIZE="+1g"
+MY_02_SWAP_SIZE="+8g"
+MY_02_ROOT_SIZE="0"
+
+MY_02_EFI_PART="/dev/sda1"
+MY_02_SWAP_PART="/dev/sda2"
+MY_02_ROOT_PART="/dev/sda3"
+
 
 MY_PREFERED_MIRRORS_REGION=Switzerland,France,Germany,Austria,Italy
 MY_CLOCK_REGION=Europe/Zurich
@@ -30,8 +52,6 @@ MY_KEYMAP=us
 MY_PACSTRAP_PACKAGES="linux base linux-firmware linux-headers"
 MY_PACMAN_PACKAGES="xdg-desktop-portal-wlr xorg-xwayland xdg-desktop-portal xdg-desktop-portal-gtk gzip bzip2 xz p7zip htop nftables sway fuzzel wayland wayland-protocols mousepad foot grim slurp openssl openssh imlib2 wl-clipboard sudo ripgrep gd dbus nvim pipewire pipewire-pulse wireplumber networkmanager mpv firefox feh zip unzip tar ntfs-3g exfat-utils fuse-exfat dosfstools btrfs-progs xfsprogs e2fsprogs base-devel gcc make curl wget grub efibootmgr docker-buildx intel-ucode man-db man-pages texinfo git python python-pip docker docker-compose noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-dejavu ttf-liberation ttf-nerd-fonts-symbols thunar"
 MY_YAY_PACKAGES="pinta brave-bin google-chrome"
-
-
 
 MY_HOSTNAME=""
 MY_ROOT_PASSWORD=""
@@ -134,50 +154,73 @@ reflector --country ${MY_PREFERED_MIRRORS_REGION} \
 pacman -Sy --noconfirm --needed gptfdisk
 
 if [ ${MY_WHICH_COMPUTER} = "home_papa" ]; then
-	sgdisk --zap-all ${MY_DISK_NAME}
-	sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
-	sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
-	sgdisk -n 0:0:+${MY_SWAP_SIZE} -t 0:8200 -c 0:"${MY_SWAP_LABEL}" /dev/${MY_SWAP_DISK_LOCATION}
-	mkfs.ext4 -F ${MY_ROOT_PARTITION}
-	mkfs.ext4 -F ${MY_USER_PARTITION}
-	mkswap -f ${MY_SWAP_PARTITION}
-	mkfs.fat -F 32 ${MY_EFI_PARTITION}
-	mount ${MY_ROOT_PARTITION} /mnt
-	mount --mkdir ${MY_USER_PARTITION} /mnt/home
-	mount --mkdir ${MY_EFI_PARTITION} /mnt/boot
-	swapon ${MY_SWAP_PARTITION}
+    read -r -p "Type YES pour confirmer le wipe de ${MY_01_SSD}: " confirm
+    if [ "${confirm}" = "YES" ]; then
+        sgdisk --zap-all "${MY_01_SSD}"
+    else
+        echo "Annulé."
+    fi
+	sgdisk -n 0:0:${MY_01_EFI_SIZE} -t 0:ef00 -c 0:"EFI" ${MY_01_SSD}
+	sgdisk -n 0:0:${MY_01_SWAP_SIZE} -t 0:8200 -c 0:"swap" ${MY_01_SSD}
+	sgdisk -n 0:0:${MY_01_ROOT_SIZE} -t 0:8300 -c 0:"root" ${MY_01_SSD}
+
+	mkfs.ext4 -F ${MY_01_ROOT_PART}
+	mkswap -f ${MY_01_SWAP_PART}
+	mkfs.fat -F 32 ${MY_01_EFI_PART}
+
+	mount ${MY_01_ROOT_PART} /mnt
+	mount --mkdir ${MY_01_EFI_PART} /mnt/boot
+	swapon ${MY_01_SWAP_PART}
 fi
 
 if [ ${MY_WHICH_COMPUTER} = "home_maman" ]; then
-	sgdisk --zap-all ${MY_DISK_NAME}
-	sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
-	sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
-	sgdisk -n 0:0:+${MY_USER_SIZE} -t 0:8300 -c 0:"${MY_USER_LABEL}" /dev/${MY_USER_DISK_LOCATION}
-	sgdisk -n 0:0:+${MY_SWAP_SIZE} -t 0:8200 -c 0:"${MY_SWAP_LABEL}" /dev/${MY_SWAP_DISK_LOCATION}
-	mkfs.ext4 -F ${MY_ROOT_PARTITION}
-	mkfs.ext4 -F ${MY_USER_PARTITION}
-	mkswap -f ${MY_SWAP_PARTITION}
-	mkfs.fat -F 32 ${MY_EFI_PARTITION}
-	mount ${MY_ROOT_PARTITION} /mnt
-	mount --mkdir ${MY_USER_PARTITION} /mnt/home
-	mount --mkdir ${MY_EFI_PARTITION} /mnt/boot
-	swapon ${MY_SWAP_PARTITION}
+    read -r -p "Type YES pour confirmer le wipe de ${MY_02_SSD}: " confirm
+    if [ "${confirm}" = "YES" ]; then
+        sgdisk --zap-all "${MY_02_SSD}"
+    else
+        echo "Annulé."
+    fi
+	sgdisk -n 0:0:${MY_02_EFI_SIZE} -t 0:ef00 -c 0:"EFI" ${MY_02_SSD}
+	sgdisk -n 0:0:${MY_02_SWAP_SIZE} -t 0:8200 -c 0:"swap" ${MY_02_SSD}
+	sgdisk -n 0:0:${MY_02_ROOT_SIZE} -t 0:8300 -c 0:"root" ${MY_02_SSD}
+
+	mkfs.ext4 -F ${MY_02_ROOT_PART}
+	mkswap -f ${MY_02_SWAP_PART}
+	mkfs.fat -F 32 ${MY_02_EFI_PART}
+
+	mount ${MY_02_ROOT_PART} /mnt
+	mount --mkdir ${MY_02_EFI_PART} /mnt/boot
+	swapon ${MY_02_SWAP_PART}
 fi
 
 if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
-	sgdisk --zap-all ${MY_DISK_NAME}
-	sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
-	sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
-	sgdisk -n 0:0:+${MY_USER_SIZE} -t 0:8300 -c 0:"${MY_USER_LABEL}" /dev/${MY_USER_DISK_LOCATION}
-	sgdisk -n 0:0:+${MY_SWAP_SIZE} -t 0:8200 -c 0:"${MY_SWAP_LABEL}" /dev/${MY_SWAP_DISK_LOCATION}
-	mkfs.ext4 -F ${MY_ROOT_PARTITION}
-	mkfs.ext4 -F ${MY_USER_PARTITION}
-	mkswap -f ${MY_SWAP_PARTITION}
-	mkfs.fat -F 32 ${MY_EFI_PARTITION}
-	mount ${MY_ROOT_PARTITION} /mnt
-	mount --mkdir ${MY_USER_PARTITION} /mnt/home
-	mount --mkdir ${MY_EFI_PARTITION} /mnt/boot
-	swapon ${MY_SWAP_PARTITION}
+    read -r -p "Type YES pour confirmer le wipe de ${MY_01m_SSD}: " confirm
+    if [ "${confirm}" = "YES" ]; then
+        sgdisk --zap-all "${MY_01m_SSD}"
+    else
+        echo "Annulé."
+    fi
+    read -r -p "Type YES pour confirmer le wipe de ${MY_01m_HDD}: " confirm
+    if [ "${confirm}" = "YES" ]; then
+        sgdisk --zap-all "${MY_01m_HDD}"
+    else
+        echo "Annulé."
+    fi
+
+	sgdisk -n 0:0:${MY_02_EFI_SIZE} -t 0:ef00 -c 0:"EFI" ${MY_01m_SSD}
+	sgdisk -n 0:0:${MY_02_SWAP_SIZE} -t 0:8200 -c 0:"swap" ${MY_01m_SSD}
+	sgdisk -n 0:0:${MY_02_ROOT_SIZE} -t 0:8300 -c 0:"root" ${MY_01m_SSD}
+	sgdisk -n 0:0:${MY_02_HOME_SIZE} -t 0:8300 -c 0:"home" ${MY_01m_HDD}
+
+	mkfs.ext4 -F ${MY_01m_SSD_ROOT_PART}
+	mkfs.ext4 -F ${MY_01m_HDD_HOME_PART}
+	mkswap -f ${MY_01m_SSD_SWAP_PART}
+	mkfs.fat -F 32 ${MY_01m_SSD_EFI_PART}
+
+	mount ${MY_01m_SSD_ROOT_PART} /mnt
+	mount --mkdir ${MY_01m_HDD_HOME_PART} /mnt/home
+	mount --mkdir ${MY_01m_SSD_EFI_PART} /mnt/boot
+	swapon ${MY_01m_SSD_SWAP_PART}
 fi
 
 pacstrap -K /mnt ${MY_PACSTRAP_PACKAGES}

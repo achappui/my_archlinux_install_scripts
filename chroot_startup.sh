@@ -15,10 +15,6 @@ echo "root:${MY_ROOT_PASSWORD}" | chpasswd
 
 sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
 
-# if [ ${MY_IS_IMAC} = "true" ]; then
-#     nvram SystemAudioVolume=" "
-# fi
-
 pacman -Syu --noconfirm --needed ${MY_PACMAN_PACKAGES}
 
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
@@ -30,19 +26,18 @@ echo "${MY_USER}:${MY_USER_PASSWORD}" | chpasswd
 mv /user_startup.sh /home/${MY_USER}/user_startup.sh
 sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
 
-#Redirecting the heavy loads on the user big partition rather than saturating root
-mkdir -p /home/${MY_USER}/.docker-data
-mkdir -p /etc/docker/
+if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
+  mkdir -p /home/${MY_USER}/.docker-data
+  mkdir -p /etc/docker/
 cat <<EOF >> /etc/docker/daemon.json
 {
   "data-root": "/home/${MY_USER}/.docker-data"
 }
 EOF
-
-mkdir -p /home/${MY_USER}/.pacman-cache
-mv /var/cache/pacman/pkg /home/${MY_USER}/.pacman-cache
-ln -s /home/${MY_USER}/.pacman-cache/pkg /var/cache/pacman/pkg
-
+  mkdir -p /home/${MY_USER}/.pacman-cache
+  mv /var/cache/pacman/pkg /home/${MY_USER}/.pacman-cache
+  ln -s /home/${MY_USER}/.pacman-cache/pkg /var/cache/pacman/pkg
+fi
 
 systemctl enable NetworkManager
 systemctl enable docker
