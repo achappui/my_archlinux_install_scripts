@@ -15,13 +15,13 @@ if [ ${MY_IS_IMAC} = "true" ]; then
 else
 	yay -Syu --noconfirm --needed linux-headers nvidia-580xx-dkms nvidia-580xx-utils lib32-nvidia-580xx-utils
 
-echo "#!/bin/sh
-/usr/lib/xdg-desktop-portal &
-/usr/lib/xdg-desktop-portal-gtk &
+# echo "#!/bin/sh
+# /usr/lib/xdg-desktop-portal &
+# /usr/lib/xdg-desktop-portal-gtk &
 
-sleep 2
-feh --bg-fill /home/${MY_USER}/Pictures/wall/gruv.png &
- " > /home/${MY_USER}/.xinitrc
+# sleep 2
+# feh --bg-fill /home/${MY_USER}/Pictures/wall/gruv.png &
+#  " > /home/${MY_USER}/.xinitrc
 
 echo "alias 'vi'='nvim'" >> /home/${MY_USER}/.bashrc
 echo "alias 'sudo'='sudo '" >> /home/${MY_USER}/.bashrc

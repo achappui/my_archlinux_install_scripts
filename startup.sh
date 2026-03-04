@@ -1,11 +1,22 @@
 #!/bin/bash
 set -e
 
-MY_HOME_PAPA_SSD_NAME=
-MY_HOME_PAPA_HDD_NAME=
 
-MY_HOME_PAPA_IMAC_SSD_NAME=
-MY_HOME_PAPA_IMAC_HDD_NAME=
+#01 = HOME_PAPA
+#01m = HOME_PAPA_IMAC
+#02 = HOME_MAMAN
+
+
+MY_01_SSD=
+
+MY_01m_SSD=
+MY_01m_HDD=
+
+MY_01m_SSD_EFI_SIZE=
+MY_01m_SSD_ROOT_SIZE=
+
+MY_01m_SSD_EFI_PART=
+MY_01m_SSD_ROOT_PART=
 
 MY_HOME_MAMAN_SSD_NAME=
 MY_HOME_MAMAN_HDD_NAME=
@@ -20,8 +31,7 @@ MY_PACSTRAP_PACKAGES="linux base linux-firmware linux-headers"
 MY_PACMAN_PACKAGES="xdg-desktop-portal-wlr xorg-xwayland xdg-desktop-portal xdg-desktop-portal-gtk gzip bzip2 xz p7zip htop nftables sway fuzzel wayland wayland-protocols mousepad foot grim slurp openssl openssh imlib2 wl-clipboard sudo ripgrep gd dbus nvim pipewire pipewire-pulse wireplumber networkmanager mpv firefox feh zip unzip tar ntfs-3g exfat-utils fuse-exfat dosfstools btrfs-progs xfsprogs e2fsprogs base-devel gcc make curl wget grub efibootmgr docker-buildx intel-ucode man-db man-pages texinfo git python python-pip docker docker-compose noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-dejavu ttf-liberation ttf-nerd-fonts-symbols thunar"
 MY_YAY_PACKAGES="pinta brave-bin google-chrome"
 
-MY_NVIDIA_MAXWELL_TO_VOLTA_PACKAGES="linux-headers nvidia-580xx-dkms nvidia-580xx-utils lib32-nvidia-580xx-utils"
-MY_INTEL_IRIS_PRO_GRAPHICS_PACKAGES="mesa libva intel-ucode"
+
 
 MY_HOSTNAME=""
 MY_ROOT_PASSWORD=""
@@ -124,9 +134,9 @@ reflector --country ${MY_PREFERED_MIRRORS_REGION} \
 pacman -Sy --noconfirm --needed gptfdisk
 
 if [ ${MY_WHICH_COMPUTER} = "home_papa" ]; then
+	sgdisk --zap-all ${MY_DISK_NAME}
 	sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
 	sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
-	sgdisk -n 0:0:+${MY_USER_SIZE} -t 0:8300 -c 0:"${MY_USER_LABEL}" /dev/${MY_USER_DISK_LOCATION}
 	sgdisk -n 0:0:+${MY_SWAP_SIZE} -t 0:8200 -c 0:"${MY_SWAP_LABEL}" /dev/${MY_SWAP_DISK_LOCATION}
 	mkfs.ext4 -F ${MY_ROOT_PARTITION}
 	mkfs.ext4 -F ${MY_USER_PARTITION}
@@ -139,6 +149,7 @@ if [ ${MY_WHICH_COMPUTER} = "home_papa" ]; then
 fi
 
 if [ ${MY_WHICH_COMPUTER} = "home_maman" ]; then
+	sgdisk --zap-all ${MY_DISK_NAME}
 	sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
 	sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
 	sgdisk -n 0:0:+${MY_USER_SIZE} -t 0:8300 -c 0:"${MY_USER_LABEL}" /dev/${MY_USER_DISK_LOCATION}
@@ -154,6 +165,7 @@ if [ ${MY_WHICH_COMPUTER} = "home_maman" ]; then
 fi
 
 if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
+	sgdisk --zap-all ${MY_DISK_NAME}
 	sgdisk -n 0:0:+${MY_EFI_SIZE} -t 0:ef00 -c 0:"${MY_EFI_LABEL}" /dev/${MY_EFI_DISK_LOCATION}
 	sgdisk -n 0:0:+${MY_ROOT_SIZE} -t 0:8300 -c 0:"${MY_ROOT_LABEL}" /dev/${MY_ROOT_DISK_LOCATION}
 	sgdisk -n 0:0:+${MY_USER_SIZE} -t 0:8300 -c 0:"${MY_USER_LABEL}" /dev/${MY_USER_DISK_LOCATION}
