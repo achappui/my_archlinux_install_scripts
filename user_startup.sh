@@ -10,13 +10,10 @@ rm -rf /home/${MY_USER}/yay
 
 yay -Syu --noconfirm --needed ${MY_YAY_PACKAGES}
 
-if [ ${MY_DRIVERS} = "nvidia_maxwell_to_volta" ]; then
-    yay -Syu --noconfirm --needed ${MY_NVIDIA_MAXWELL_TO_VOLTA_PACKAGES}
-fi
-
-if [ ${MY_DRIVERS} = "intel_iris_pro_graphics" ]; then
-    pacman -Syu --noconfirm --needed ${MY_INTEL_IRIS_PRO_GRAPHICS_PACKAGES}
-fi
+if [ ${MY_IS_IMAC} = "true" ]; then
+    pacman -Syu --noconfirm --needed mesa libva intel-ucode
+else
+	yay -Syu --noconfirm --needed linux-headers nvidia-580xx-dkms nvidia-580xx-utils lib32-nvidia-580xx-utils
 
 echo "#!/bin/sh
 /usr/lib/xdg-desktop-portal &
