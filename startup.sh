@@ -207,10 +207,10 @@ if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
         echo "Annulé."
     fi
 
-	sgdisk -n 0:0:${MY_02_EFI_SIZE} -t 0:ef00 -c 0:"EFI" ${MY_01m_SSD}
-	sgdisk -n 0:0:${MY_02_SWAP_SIZE} -t 0:8200 -c 0:"swap" ${MY_01m_SSD}
-	sgdisk -n 0:0:${MY_02_ROOT_SIZE} -t 0:8300 -c 0:"root" ${MY_01m_SSD}
-	sgdisk -n 0:0:${MY_02_HOME_SIZE} -t 0:8300 -c 0:"home" ${MY_01m_HDD}
+	sgdisk -n 0:0:${MY_01m_SSD_EFI_SIZE} -t 0:ef00 -c 0:"EFI" ${MY_01m_SSD}
+	sgdisk -n 0:0:${MY_01m_SSD_SWAP_SIZE} -t 0:8200 -c 0:"swap" ${MY_01m_SSD}
+	sgdisk -n 0:0:${MY_01m_SSD_ROOT_SIZE} -t 0:8300 -c 0:"root" ${MY_01m_SSD}
+	sgdisk -n 0:0:${MY_01m_HDD_HOME_SIZE} -t 0:8300 -c 0:"home" ${MY_01m_HDD}
 
 	mkfs.ext4 -F ${MY_01m_SSD_ROOT_PART}
 	mkfs.ext4 -F ${MY_01m_HDD_HOME_PART}
