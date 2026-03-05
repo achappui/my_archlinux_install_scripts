@@ -59,6 +59,10 @@ MY_USER=""
 MY_USER_PASSWORD=""
 MY_WHICH_COMPUTER="" #home_papa home_maman ou home_papa_imac
 
+MY_IS_WIFI=""
+MY_WIFI_NAME=""
+MY_WIFI_PASSWORD=""
+
 ask_input() {
     PROMPT=$1
     VAR_NAME=$2
@@ -74,23 +78,23 @@ ask_input() {
     done
 }
 
-ask_password() {
-    PROMPT=$1
-    VAR_NAME=$2
-    while true; do
-        printf "%s: " "${PROMPT}"
-        stty -echo
-        read VALUE
-        stty echo
-        echo
-        if [ -n "${VALUE}" ]; then
-            eval "${VAR_NAME}='${VALUE}'"
-            break
-        else
-            echo "Cannot be empty. Try again."
-        fi
-    done
-}
+# ask_password() {
+#     PROMPT=$1
+#     VAR_NAME=$2
+#     while true; do
+#         printf "%s: " "${PROMPT}"
+#         stty -echo
+#         read VALUE
+#         stty echo
+#         echo
+#         if [ -n "${VALUE}" ]; then
+#             eval "${VAR_NAME}='${VALUE}'"
+#             break
+#         else
+#             echo "Cannot be empty. Try again."
+#         fi
+#     done
+# }
 
 ask_choice() {
     VAR_NAME=$1
@@ -123,12 +127,32 @@ ask_choice() {
     done
 }
 
+ask_boolean() {
+    PROMPT=$1
+    VAR_NAME=$2
+    while true; do
+        printf "%s [y/n]: " "${PROMPT}"
+        read VALUE
+        case "${VALUE}" in
+            y|Y) eval "${VAR_NAME}='true'"; break ;;
+            n|N) eval "${VAR_NAME}='false'"; break ;;
+            *) echo "Please answer y or n." ;;
+        esac
+    done
+}
+
 # --- 2️⃣ Inputs utilisateur ---
 ask_input "Enter Hostname" MY_HOSTNAME
-ask_password "Enter Root Password" MY_ROOT_PASSWORD
+ask_input "Enter Root Password" MY_ROOT_PASSWORD
 ask_input "Enter User Name" MY_USER
-ask_password "Enter User Password" MY_USER_PASSWORD
+ask_input "Enter User Password" MY_USER_PASSWORD
 ask_choice MY_WHICH_COMPUTER
+ask_boolean "Do you want to activate Wifi ?" MY_IS_WIFI
+
+if [ "${MY_IS_WIFI}" = "true" ]; then
+    ask_input "Enter Wifi name" MY_WIFI_NAME
+    ask_input "Enter Wifi password" MY_WIFI_PASSWORD
+fi
 
 sed -i "/^set -e/a\\
 MY_CLOCK_REGION='${MY_CLOCK_REGION}'\\
@@ -140,21 +164,26 @@ MY_USER='${MY_USER}'\\
 MY_USER_PASSWORD='${MY_USER_PASSWORD}'\\
 MY_HOSTNAME='${MY_HOSTNAME}'\\
 MY_WHICH_COMPUTER='${MY_WHICH_COMPUTER}'\\
+MY_IS_WIFI='${MY_IS_WIFI}'\\
+MY_WIFI_NAME='${MY_WIFI_NAME}'\\
+MY_WIFI_PASSWORD='${MY_WIFI_PASSWORD}'\\
 MY_PACMAN_PACKAGES='${MY_PACMAN_PACKAGES}'" chroot_startup.sh
 
 sed -i "/^set -e/a\\
 MY_WHICH_COMPUTER='${MY_WHICH_COMPUTER}'\\
 MY_USER='${MY_USER}'" user_startup.sh
 
-pacman-key --init
-pacman-key --populate archlinux
+# pacman-key --init
+# pacman-key --populate archlinux
+# pacman -Sy git
 timedatectl set-ntp true
 reflector --country ${MY_PREFERED_MIRRORS_REGION} \
   --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 pacman -Sy --noconfirm --needed gptfdisk
 
 if [ ${MY_WHICH_COMPUTER} = "home_papa" ]; then
-    read -r -p "Type YES pour confirmer le wipe de ${MY_01_SSD}: " confirm
+    echo "Type YES pour confirmer le wipe de ${MY_01_SSD}"
+    read confirm
     if [ "${confirm}" = "YES" ]; then
         sgdisk --zap-all "${MY_01_SSD}"
     else
@@ -174,7 +203,8 @@ if [ ${MY_WHICH_COMPUTER} = "home_papa" ]; then
 fi
 
 if [ ${MY_WHICH_COMPUTER} = "home_maman" ]; then
-    read -r -p "Type YES pour confirmer le wipe de ${MY_02_SSD}: " confirm
+    echo "Type YES pour confirmer le wipe de ${MY_02_SSD}"
+    read confirm
     if [ "${confirm}" = "YES" ]; then
         sgdisk --zap-all "${MY_02_SSD}"
     else
@@ -193,14 +223,17 @@ if [ ${MY_WHICH_COMPUTER} = "home_maman" ]; then
 	swapon ${MY_02_SWAP_PART}
 fi
 
+#For some reasons the prompt didnt appear
 if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
-    read -r -p "Type YES pour confirmer le wipe de ${MY_01m_SSD}: " confirm
+    echo "Type YES pour confirmer le wipe de ${MY_01m_SSD}"
+    read confirm
     if [ "${confirm}" = "YES" ]; then
         sgdisk --zap-all "${MY_01m_SSD}"
     else
         echo "Annulé."
     fi
-    read -r -p "Type YES pour confirmer le wipe de ${MY_01m_HDD}: " confirm
+    echo "Type YES pour confirmer le wipe de ${MY_01m_HDD}"
+    read confirm
     if [ "${confirm}" = "YES" ]; then
         sgdisk --zap-all "${MY_01m_HDD}"
     else

@@ -39,6 +39,18 @@ EOF
   ln -s /home/${MY_USER}/.pacman-cache/pkg /var/cache/pacman/pkg
 fi
 
+if [ "${MY_IS_WIFI}" = "true" ]; then
+    pacman -Sy --noconfirm iw iwd
+    mkdir -p /var/lib/iwd
+cat <<EOF > /var/lib/iwd/${MY_WIFI_NAME}.psk
+[Security]
+Passphrase=${MY_WIFI_PASSWORD}
+EOF
+    chmod 600 /var/lib/iwd/${MY_WIFI_NAME}.psk
+    chown root:root /var/lib/iwd/${MY_WIFI_NAME}.psk
+    systemctl enable --now iwd
+fi
+
 systemctl enable NetworkManager
 systemctl enable docker
 
