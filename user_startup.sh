@@ -7,20 +7,26 @@ git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay
 makepkg -si --dir /home/${MY_USER}/yay
 rm -rf /home/${MY_USER}/yay
 
-sudo yay -Syu --noconfirm --needed ${MY_YAY_PACKAGES}
+yay -Syu --noconfirm --needed ${MY_YAY_PACKAGES}
 
-if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
+if [ ${MY_WHICH_COMPUTER} != "home_papa_imac" ]; then
     sudo pacman -Syu --noconfirm --needed mesa libva intel-ucode
-else
-	sudo yay -Syu --noconfirm --needed linux-headers nvidia-580xx-dkms nvidia-580xx-utils lib32-nvidia-580xx-utils
+fi
 
-#Work only if sway is up
-# exec_always --no-startup-id swaybg -i /home/${MY_USER}/Pictures/wall/gruv.png -m fill
+if [ ${MY_WHICH_COMPUTER} = "home_papa" ]; then
+    echo "output DP-4 pos 0 0 res 1920x1200@60Hz" >> /home/${MY_USER}/.config/sway/config
+    echo "output HDMI-A-0 pos 1920 0 res 1920x1200@60Hz" >> /home/${MY_USER}/.config/sway/config
+elif [ ${MY_WHICH_COMPUTER} = "home_maman" ]; then
+    echo "" >> /home/${MY_USER}/.config/sway/config
+    echo "" >> /home/${MY_USER}/.config/sway/config
+elif [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
+    echo "output DP-3 pos 0 0 res 1920x1080@60Hz" >> /home/${MY_USER}/.config/sway/config
+fi
 
 echo "alias 'vi'='nvim'" >> /home/${MY_USER}/.bashrc
 echo "alias 'sudo'='sudo '" >> /home/${MY_USER}/.bashrc
 
 source /home/${MY_USER}/.bashrc
-sed -i "\|sudo /home/${MY_USER}/user_startup.sh|d" /home/${MY_USER}/.bash_profile
+sed -i "\|/home/${MY_USER}/user_startup.sh|d" /home/${MY_USER}/.bash_profile
 
 rm -- "$0"

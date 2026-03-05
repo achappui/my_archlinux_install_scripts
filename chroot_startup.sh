@@ -17,6 +17,10 @@ sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
 
 pacman -Syu --noconfirm --needed ${MY_PACMAN_PACKAGES}
 
+if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
+    pacman -Syu --noconfirm --needed mesa libva intel-ucode
+fi
+
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
@@ -87,7 +91,7 @@ rm -rf /tmp/NerdFont
 mkdir -p /etc/modprobe.d
 echo "options snd_hda_intel power_save=0 power_save_controller=N " > /etc/modprobe.d/audio_disable_autosuspend.conf
 
-echo "sudo /home/${MY_USER}/user_startup.sh" >> /home/${MY_USER}/.bash_profile
+echo "/home/${MY_USER}/user_startup.sh" >> /home/${MY_USER}/.bash_profile
 cat <<'EOF' >> /home/${MY_USER}/.bash_profile
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     exec sway
@@ -97,9 +101,11 @@ EOF
 mkdir -p /home/${MY_USER}/.config/foot
 echo "font = JetBrainsMono Nerd Font:pixelsize=14" > /home/${MY_USER}/.config/foot/foot.ini
 
+#Sway config (should replace by a copy past instead of modifications)
 mkdir -p /home/${MY_USER}/.config/sway
-cp /etc/sway/config /home/${MY_USER}/.config/sway/config
-sed -i 's/^set $menu .*/set $menu fuzzel/' /home/${MY_USER}/.config/sway/config
+cp /home/${MY_USER}/swayconf /home/${MY_USER}/.config/sway/config
+rm /home/${MY_USER}/swayconf
+
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 
 mkinitcpio -P
