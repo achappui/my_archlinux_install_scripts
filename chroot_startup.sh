@@ -34,13 +34,14 @@ cat <<EOF >> /etc/docker/daemon.json
   "data-root": "/home/${MY_USER}/.docker-data"
 }
 EOF
-  mkdir -p /home/${MY_USER}/.pacman-cache
-  mv /var/cache/pacman/pkg /home/${MY_USER}/.pacman-cache
-  ln -s /home/${MY_USER}/.pacman-cache/pkg /var/cache/pacman/pkg
+  pacman -Syu --noconfirm pacman-contrib
+  systemctl enable --now paccache.timer
+  paccache -rk1
+  journalctl --vacuum-size=100M 
 fi
 
 if [ "${MY_IS_WIFI}" = "true" ]; then
-    pacman -Sy --noconfirm iw iwd
+    pacman -Syu --noconfirm iw iwd
     mkdir -p /var/lib/iwd
 cat <<EOF > /var/lib/iwd/${MY_WIFI_NAME}.psk
 [Security]
@@ -67,13 +68,19 @@ rm -rf /tmp/NerdFont
 mkdir -p /etc/modprobe.d
 echo "options snd_hda_intel power_save=0 power_save_controller=N " > /etc/modprobe.d/audio_disable_autosuspend.conf
 
-echo "/home/${MY_USER}/user_startup.sh" >> /home/${MY_USER}/.bash_profile
+echo "sudo /home/${MY_USER}/user_startup.sh" >> /home/${MY_USER}/.bash_profile
 cat <<'EOF' >> /home/${MY_USER}/.bash_profile
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     exec sway
 fi
 EOF
 
+mkdir -p /home/${MY_USER}/.config/foot
+echo "font = JetBrainsMono Nerd Font:pixelsize=14" > /home/${MY_USER}/.config/foot/foot.ini
+
+mkdir -p /home/${MY_USER}/.config/sway
+cp /etc/sway/config /home/${MY_USER}/.config/sway/config
+sed -i 's/^set $menu .*/set $menu fuzzel/' /home/${MY_USER}/.config/sway/config
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 
 mkinitcpio -P
