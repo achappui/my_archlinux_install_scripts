@@ -42,16 +42,33 @@ fi
 
 if [ "${MY_IS_WIFI}" = "true" ]; then
     pacman -Syu --noconfirm iw iwd dhcpcd
+    systemctl enable --now iwd systemd-networkd systemd-resolved
+    mkdir -p /etc/iwd
+cat <<'EOF' >> /etc/iwd/main.conf
+[General]
+EnableNetworkConfiguration=true
+
+[Network]
+NameResolvingService=systemd
+EOF
+    systemctl restart iwd
     mkdir -p /var/lib/iwd
 cat <<EOF > /var/lib/iwd/${MY_WIFI_NAME}.psk
 [Security]
 Passphrase=${MY_WIFI_PASSWORD}
 EOF
-    MY_INTERFACE=$(iwctl device list | grep station | awk '{print $2}')
     chmod 600 /var/lib/iwd/${MY_WIFI_NAME}.psk
     chown root:root /var/lib/iwd/${MY_WIFI_NAME}.psk
-    sudo systemctl enable --now dhcpcd@${MY_INTERFACE}
-    systemctl enable --now iwd
+
+    MY_INTERFACE=$(iwctl device list | grep station | awk '{print $2}')
+    mkdir -p /etc/systemd/network
+cat <<EOF > /etc/systemd/network/25-wireless.network
+[Match]
+Name=${MY_INTERFACE}
+
+[Network]
+DHCP=yes
+EOF
 fi
 
 systemctl enable NetworkManager
