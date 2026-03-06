@@ -17,8 +17,8 @@ if [ ${MY_WHICH_COMPUTER} = "home_papa" ]; then
     echo "output DP-4 pos 0 0 res 1920x1200@60Hz" >> /home/${MY_USER}/.config/sway/config
     echo "output HDMI-A-0 pos 1920 0 res 1920x1200@60Hz" >> /home/${MY_USER}/.config/sway/config
 elif [ ${MY_WHICH_COMPUTER} = "home_maman" ]; then
-    echo "" >> /home/${MY_USER}/.config/sway/config
-    echo "" >> /home/${MY_USER}/.config/sway/config
+    echo "output HDMI-A-1 pos 0 0 res 1920x1200@60Hz" >> /home/${MY_USER}/.config/sway/config
+    echo "output DVI-D-1 pos 1920 0 res 1680x1050@60Hz" >> /home/${MY_USER}/.config/sway/config
 elif [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
     echo "output DP-3 pos 0 0 res 1920x1080@60Hz" >> /home/${MY_USER}/.config/sway/config
 fi
