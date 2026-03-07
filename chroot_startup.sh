@@ -44,9 +44,22 @@ EOF
   journalctl --vacuum-size=100M 
 fi
 
+systemctl enable --now systemd-networkd systemd-resolved
+
+mkdir -p /etc/systemd/network
+MY_WIRED_INTERFACE=$(networkctl | awk '/ether/ {print $2; exit}')
+cat <<EOF > /etc/systemd/network/20-wired.network
+[Match]
+Name=${MY_WIRED_INTERFACE}
+
+[Network]
+DHCP=yes
+EOF
+systemctl restart systemd-networkd
+
 if [ "${MY_IS_WIFI}" = "true" ]; then
-    pacman -Syu --noconfirm iw iwd dhcpcd
-    systemctl enable --now iwd systemd-networkd systemd-resolved
+    pacman -Syu --noconfirm iwd
+    systemctl enable --now iwd
     mkdir -p /etc/iwd
 cat <<'EOF' >> /etc/iwd/main.conf
 [General]
@@ -64,18 +77,18 @@ EOF
     chmod 600 /var/lib/iwd/${MY_WIFI_NAME}.psk
     chown root:root /var/lib/iwd/${MY_WIFI_NAME}.psk
 
-    MY_INTERFACE=$(iwctl device list | grep station | awk '{print $2}')
-    mkdir -p /etc/systemd/network
+    MY_WIFI_INTERFACE=$(iwctl device list | grep station | awk '{print $2}')
 cat <<EOF > /etc/systemd/network/25-wireless.network
 [Match]
-Name=${MY_INTERFACE}
+Name=${MY_WIFI_INTERFACE}
 
 [Network]
 DHCP=yes
 EOF
+    systemctl restart systemd-networkd
+    systemctl restart iwd
 fi
 
-systemctl enable NetworkManager
 systemctl enable docker
 
 usermod -aG docker ${MY_USER}
