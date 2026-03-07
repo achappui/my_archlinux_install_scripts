@@ -259,7 +259,8 @@ fi
 pacstrap -K /mnt ${MY_PACSTRAP_PACKAGES}
 genfstab -U /mnt >> /mnt/etc/fstab
 cp chroot_startup.sh /mnt/chroot_startup.sh
-cp user_startup.sh swayconf /mnt/user_startup.sh swayconf
+cp user_startup.sh /mnt/user_startup.sh
+cp swayconf /mnt/swayconf
 arch-chroot /mnt /bin/bash chroot_startup.sh
 rm /mnt/chroot_startup.sh
 umount -R /mnt

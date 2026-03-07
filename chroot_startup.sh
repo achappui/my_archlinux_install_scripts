@@ -116,8 +116,8 @@ echo "font = JetBrainsMono Nerd Font:pixelsize=14" > /home/${MY_USER}/.config/fo
 
 #Sway config (should replace by a copy past instead of modifications)
 mkdir -p /home/${MY_USER}/.config/sway
-cp /home/${MY_USER}/swayconf /home/${MY_USER}/.config/sway/config
-rm /home/${MY_USER}/swayconf
+cp /swayconf /home/${MY_USER}/.config/sway/config
+rm /swayconf
 
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 
