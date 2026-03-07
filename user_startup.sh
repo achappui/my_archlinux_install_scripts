@@ -9,7 +9,7 @@ rm -rf /home/${MY_USER}/yay
 
 yay -Syu --noconfirm --needed ${MY_YAY_PACKAGES}
 
-if [ ${MY_WHICH_COMPUTER} != "home_papa_imac" ]; then
+if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
     sudo pacman -Syu --noconfirm --needed mesa libva intel-ucode
 fi
 

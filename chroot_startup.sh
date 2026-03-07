@@ -17,6 +17,8 @@ sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
 
 pacman -Syu --noconfirm --needed ${MY_PACMAN_PACKAGES}
 
+npm install -g typescript stylelint
+
 if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
     pacman -Syu --noconfirm --needed mesa libva intel-ucode
 fi
@@ -104,20 +106,16 @@ rm -rf /tmp/NerdFont
 mkdir -p /etc/modprobe.d
 echo "options snd_hda_intel power_save=0 power_save_controller=N " > /etc/modprobe.d/audio_disable_autosuspend.conf
 
-echo "/home/${MY_USER}/user_startup.sh" >> /home/${MY_USER}/.bash_profile
+# echo "/home/${MY_USER}/user_startup.sh" >> /home/${MY_USER}/.bash_profile
 cat <<'EOF' >> /home/${MY_USER}/.bash_profile
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     exec sway
 fi
 EOF
 
-mkdir -p /home/${MY_USER}/.config/foot
-echo "font = JetBrainsMono Nerd Font:pixelsize=14" > /home/${MY_USER}/.config/foot/foot.ini
-
-#Sway config (should replace by a copy past instead of modifications)
-mkdir -p /home/${MY_USER}/.config/sway
-cp /swayconf /home/${MY_USER}/.config/sway/config
-rm /swayconf
+mkdir -p /home/${MY_USER}/.config/
+cp -r /config/* /home/${MY_USER}/.config
+rm -r /config
 
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 
