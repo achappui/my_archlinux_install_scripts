@@ -1,0 +1,7 @@
+# --------------------------------------------------
+# Base system (installed with pacstrap)
+# --------------------------------------------------
+base
+linux
+linux-firmware
+linux-headers

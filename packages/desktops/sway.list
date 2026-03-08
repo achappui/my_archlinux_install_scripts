@@ -1,0 +1,48 @@
+# --------------------------------------------------
+# Wayland / Sway environment
+# --------------------------------------------------
+sway
+swaybg
+wayland
+wayland-protocols
+xorg-xwayland
+fuzzel
+foot
+grim
+slurp
+wl-clipboard
+
+# --------------------------------------------------
+# Desktop integration
+# --------------------------------------------------
+xdg-desktop-portal
+xdg-desktop-portal-wlr
+xdg-desktop-portal-gtk
+thunar
+mousepad
+
+# --------------------------------------------------
+# Multimedia
+# --------------------------------------------------
+pipewire
+pipewire-pulse
+wireplumber
+mpv
+feh
+imlib2
+gd
+
+# --------------------------------------------------
+# Browser
+# --------------------------------------------------
+firefox
+
+# --------------------------------------------------
+# Fonts
+# --------------------------------------------------
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+ttf-dejavu
+ttf-liberation
+ttf-nerd-fonts-symbols

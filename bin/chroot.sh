@@ -1,7 +1,29 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-
+# ==================================================
+# Arch Linux Automated Installer
+# --------------------------------------------------
+#
+# Stage 1: startup.sh
+#   - disk partition
+#   - pacstrap
+#
+# Stage 2: chroot.sh
+#   - system configuration
+#   - packages install
+#
+# Stage 3: user.sh
+#   - user environment
+#   - AUR packages
+#
+# Supported machines:
+#   - home_papa
+#   - home_maman
+#   - home_papa_imac
+#
+# Author: <me>
+# ==================================================
 
 ln -sf /usr/share/zoneinfo/${MY_CLOCK_REGION} /etc/localtime
 hwclock --systohc
