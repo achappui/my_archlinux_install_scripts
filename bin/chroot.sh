@@ -48,17 +48,9 @@ useradd -m -G wheel -s /bin/bash ${MY_USER}
 echo "${MY_USER}:${MY_USER_PASSWORD}" | chpasswd
 sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
 
-sudo -u ${MY_USER} -H bash -c "git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay"
-sudo -u ${MY_USER} -H bash -c "makepkg --noconfirm --needed --dir /home/${MY_USER}/yay"
-pacman -U --noconfirm "/home/${MY_USER}/yay"/*.pkg.tar.zst
-rm -rf /home/${MY_USER}/yay
-yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops/sway.aur.list")
-
 pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${CPU_DRIVERS}.list")
 
-if grep -q ".aur" ${GPU_DRIVERS}; then
-    yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${GPU_DRIVERS}.list")
-else
+if ! grep -q ".aur" ${GPU_DRIVERS}; then
     pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${GPU_DRIVERS}.list")
 fi
 
@@ -154,6 +146,10 @@ rm -r /config
 for item in "${SWAY_MONITORS[@]}"; do
     echo "$item" >> /home/${MY_USER}/.config/sway/config
 done
+
+#Copy necessary variables
+cp /root/profile.sh /home/chad/profile.sh
+cp -r /packages /home/chad
 
 # Set ownership of user home and configs
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
