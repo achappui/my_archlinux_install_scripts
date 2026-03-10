@@ -39,7 +39,7 @@ source "../profiles/${MY_PROFILE}.sh"
 
 if [ "${MY_IS_WIFI_SETUP}" = "true" ]; then
   ask_input "Enter WiFi Name" MY_WIFI_NAME
-  ask_input "Enter WiFi Name" MY_WIFI_PASSWORD
+  ask_input "Enter WiFi Password" MY_WIFI_PASSWORD
 fi
 
 ask_boolean "All disks will be erased"  MY_ERASE_CONFIRMATION
