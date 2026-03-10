@@ -35,7 +35,7 @@ rm -rf /home/${USER}/yay
 
 yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/home/${USER}/packages/desktops/sway.aur.list")
 
-if grep -q ".aur" ${GPU_DRIVERS}; then
+if echo ${GPU_DRIVERS} | grep -q ".aur"; then
     yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/home/${USER}/packages/drivers/${GPU_DRIVERS}.list")
 fi
 

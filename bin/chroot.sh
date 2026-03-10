@@ -50,7 +50,7 @@ sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
 
 pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${CPU_DRIVERS}.list")
 
-if ! grep -q ".aur" ${GPU_DRIVERS}; then
+if ! echo ${GPU_DRIVERS} | grep -q ".aur"; then
     pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${GPU_DRIVERS}.list")
 fi
 
@@ -135,7 +135,7 @@ chmod +x /home/${MY_USER}/user.sh
 echo "/home/${MY_USER}/user.sh" >> /home/${MY_USER}/.bash_profile
 
 echo "if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then" >> /home/${MY_USER}/.bash_profile
-if ! grep -q "nvidia" ${GPU_DRIVERS}; then
+if echo ${GPU_DRIVERS} | grep -q "nvidia"; then
     echo "exec sway --unsupported-gpu" >> /home/${MY_USER}/.bash_profile
 else
     echo "exec sway" >> /home/${MY_USER}/.bash_profile
