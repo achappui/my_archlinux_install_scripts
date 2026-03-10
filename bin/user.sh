@@ -25,7 +25,6 @@ set -euo pipefail
 # Author: <me>
 # ==================================================
 
-
 systemctl --user enable --now pipewire pipewire-pulse wireplumber xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr
 
 git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay
