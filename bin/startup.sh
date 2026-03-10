@@ -47,9 +47,6 @@ ask_boolean "All disks will be erased"  MY_ERASE_CONFIRMATION
 PARTS=()
 generate_parts D PART_NAMES PART_DISK PARTS
 
-# pacman-key --init
-# pacman-key --populate archlinux
-# pacman -Sy git
 timedatectl set-ntp true
 reflector --country ${MY_PREFERED_MIRRORS_REGION} \
   --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
