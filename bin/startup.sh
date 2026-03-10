@@ -55,10 +55,20 @@ format_and_mount PARTS PART_NAMES
 
 pacstrap -K /mnt $(grep -vE '^\s*#|^\s*$' "../packages/pacstrap.list")
 genfstab -U /mnt >> /mnt/etc/fstab
-cp chroot_startup.sh /mnt/chroot_startup.sh
+cp chroot.sh /mnt/chroot.sh
 cp user.sh /mnt/user.sh
-cp -r config /mnt/config
-arch-chroot /mnt /bin/bash chroot_startup.sh
-rm /mnt/chroot_startup.sh
+cp -r ../config /mnt/config
+
+cat <<EOF > /mnt/root/env.sh
+export MY_HOSTNAME="${MY_HOSTNAME}"
+export MY_USER="${MY_USER}"
+export MY_USER_PASSWORD="${MY_USER_PASSWORD}"
+export MY_ROOT_PASSWORD="${MY_ROOT_PASSWORD}"
+EOF
+
+cp "../profiles/${MY_PROFILE}.sh" /mnt/root/profile.sh
+
+arch-chroot /mnt /bin/bash chroot.sh
+rm /mnt/chroot.sh
 umount -R /mnt
 reboot

@@ -27,6 +27,8 @@ set -euo pipefail
 
 PACKAGES_PATH="../packages"
 
+source /root/*
+
 #Setup basic things
 ln -sf /usr/share/zoneinfo/${MY_CLOCK_REGION} /etc/localtime
 hwclock --systohc
@@ -160,3 +162,6 @@ chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -P
+
+# Clean envfiles
+rm -r /root/*
