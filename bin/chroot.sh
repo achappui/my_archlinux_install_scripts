@@ -145,7 +145,7 @@ echo "fi" >> /home/${MY_USER}/.bash_profile
 #Copying user configs
 mkdir -p /home/${MY_USER}/.config/
 cp -r /config/* /home/${MY_USER}/.config
-rm -r /config
+rm -rf /config
 
 for item in "${SWAY_MONITORS[@]}"; do
     echo "$item" >> /home/${MY_USER}/.config/sway/config

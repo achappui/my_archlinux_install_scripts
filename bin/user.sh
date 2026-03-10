@@ -31,7 +31,7 @@ systemctl --user enable --now pipewire pipewire-pulse wireplumber xdg-desktop-po
 
 git clone https://aur.archlinux.org/yay.git /home/${USER}/yay
 makepkg -si --dir /home/${USER}/yay
-rm -r /home/${USER}/yay
+rm -rf /home/${USER}/yay
 
 yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/home/${USER}/packages/desktops/sway.aur.list")
 
@@ -43,7 +43,7 @@ echo "alias 'vi'='nvim'" >> /home/${USER}/.bashrc
 echo "alias 'sudo'='sudo '" >> /home/${USER}/.bashrc
 
 rm /home/${USER}/profile.sh
-rm -r /home/${USER}/packages
+rm -rf /home/${USER}/packages
 
 source /home/${USER}/.bashrc
 sed -i "\|/home/${USER}/user.sh|d" /home/${USER}/.bash_profile

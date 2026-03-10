@@ -76,8 +76,8 @@ cp -r "../packages" /mnt/packages
 
 arch-chroot /mnt /bin/bash chroot.sh
 rm /mnt/chroot.sh
-rm -r /mnt/root/profile.sh
-rm -r /mnt/root/env.sh
-rm -r /mnt/packages
+rm -rf /mnt/root/profile.sh
+rm -rf /mnt/root/env.sh
+rm -rf /mnt/packages
 umount -R /mnt
 reboot
