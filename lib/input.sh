@@ -2,29 +2,13 @@
 set -euo pipefail
 
 ask_input() {
-    PROMPT=$1
-    VAR_NAME=$2
-    while true; do
-        printf "%s: " "${PROMPT}"
-        read VALUE
-        if [ -n "${VALUE}" ]; then
-            eval "${VAR_NAME}='${VALUE}'"
-            break
-        else
-            echo "Cannot be empty. Try again."
-        fi
-    done
-}
+    local PROMPT="$1"
+    local VAR_NAME="$2"
+    local VALUE
 
-ask_password() {
-    PROMPT=$1
-    VAR_NAME=$2
     while true; do
         printf "%s: " "${PROMPT}"
-        stty -echo
         read VALUE
-        stty echo
-        echo
         if [ -n "${VALUE}" ]; then
             eval "${VAR_NAME}='${VALUE}'"
             break
@@ -35,18 +19,29 @@ ask_password() {
 }
 
 ask_profile() {
-    VAR_NAME=$1
-    PROFILES=($(ls profiles/*.sh | xargs -n1 basename | sed 's/\.sh$//'))
+    local PROMPT="$1"
+    local VAR_NAME="$2"
+    local FULL_PATHS
+    local BASENAMES=()
+    local f
+    local i
+    local CHOICE
 
-    echo "Available profiles:"
-    for i in "${!PROFILES[@]}"; do
-        printf "%d) %s\n" "$((i+1))" "${PROFILES[$i]}"
+    FULL_PATHS=(../profiles/*.sh)
+
+    for f in "${FULL_PATHS[@]}"; do
+        BASENAMES+=("$(basename "${f}" .sh)")
+    done
+
+    echo "${PROMPT}:"
+    for i in "${!BASENAMES[@]}"; do
+        printf "%d) %s\n" "$((i+1))" "${BASENAMES[$i]}"
     done
 
     while true; do
-        read -p "Enter choice (1-${#PROFILES[@]}): " CHOICE
-        if [[ "$CHOICE" =~ ^[0-9]+$ ]] && (( CHOICE >= 1 && CHOICE <= ${#PROFILES[@]} )); then
-            eval "$VAR_NAME='${PROFILES[$((CHOICE-1))]}'"
+        read -p "Enter choice (1-${#BASENAMES[@]}): " CHOICE
+        if [[ "${CHOICE}" =~ ^[0-9]+$ ]] && (( CHOICE >= 1 && CHOICE <= ${#BASENAMES[@]} )); then
+            eval "${VAR_NAME}='${FULL_PATHS[$((CHOICE-1))]}'"
             break
         else
             echo "Invalid choice. Try again."
@@ -55,8 +50,10 @@ ask_profile() {
 }
 
 ask_boolean() {
-    PROMPT=$1
-    VAR_NAME=$2
+    local PROMPT="$1"
+    local VAR_NAME="$2"
+    local VALUE
+
     while true; do
         printf "%s [y/n]: " "${PROMPT}"
         read VALUE

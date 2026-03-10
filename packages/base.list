@@ -42,6 +42,7 @@ tar
 dbus
 openssl
 xdg-utils
+pacman-contrib
 
 # --------------------------------------------------
 # Network
