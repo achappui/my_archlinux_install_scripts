@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+export PROFILE_NAME="home_papa_imac"
+
 export D=("/dev/nvme0n1" "/dev/sda")
 
 export PART_NAMES=(    "EFI"       "swap"      "root"      "home"      )

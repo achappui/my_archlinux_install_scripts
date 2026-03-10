@@ -29,6 +29,12 @@ source /home/${USER}/profile.sh
 
 systemctl --user enable --now pipewire pipewire-pulse wireplumber xdg-desktop-portal
 
+if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
+    echo "ARPT" | sudo tee "/proc/acpi/wakeup"
+    echo "GIGE" | sudo tee "/proc/acpi/wakeup"
+    echo "XHC1" | sudo tee "/proc/acpi/wakeup"
+fi
+
 git clone https://aur.archlinux.org/yay.git /home/${USER}/yay
 makepkg -si --dir /home/${USER}/yay
 rm -rf /home/${USER}/yay

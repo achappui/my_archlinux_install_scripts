@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+export PROFILE_NAME="home_maman"
+
 export D=("/dev/sda")
 
 export PART_NAMES=(    "EFI"       "swap"      "root"      )
