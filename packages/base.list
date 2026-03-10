@@ -50,6 +50,7 @@ pacman-contrib
 openssh
 nftables
 iwd
+iw
 
 # --------------------------------------------------
 # Bootloader

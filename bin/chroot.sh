@@ -25,8 +25,8 @@ set -euo pipefail
 # Author: <me>
 # ==================================================
 
-
-source /root/*
+source /root/env.sh
+source /root/profile.sh
 
 #Setup basic things
 ln -sf /usr/share/zoneinfo/${MY_CLOCK_REGION} /etc/localtime
@@ -48,8 +48,9 @@ useradd -m -G wheel -s /bin/bash ${MY_USER}
 echo "${MY_USER}:${MY_USER_PASSWORD}" | chpasswd
 sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
 
-git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay
-sudo -u ${MY_USER} -H bash -c "makepkg -si --dir /home/${MY_USER}/yay"
+sudo -u ${MY_USER} -H bash -c "git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay"
+sudo -u ${MY_USER} -H bash -c "makepkg --noconfirm --needed"
+pacman -U --noconfirm "/home/${MY_USER}/yay"/*.pkg.tar.zst
 rm -rf /home/${MY_USER}/yay
 yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops.sway.aur.list")
 

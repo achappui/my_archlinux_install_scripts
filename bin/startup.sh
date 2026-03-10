@@ -34,9 +34,15 @@ ask_input "Enter Root Password"         MY_ROOT_PASSWORD
 ask_input "Enter User Name"             MY_USER
 ask_input "Enter User Password"         MY_USER_PASSWORD
 ask_profile "Available profiles:"       MY_PROFILE
-ask_boolean "All disks will be erased"  MY_ERASE_CONFIRMATION
 
 source "../profiles/${MY_PROFILE}.sh"
+
+if [ "${MY_IS_WIFI_SETUP}" = "true" ]; then
+  ask_input "Enter WiFi Name" MY_WIFI_NAME
+  ask_input "Enter WiFi Name" MY_WIFI_PASSWORD
+fi
+
+ask_boolean "All disks will be erased"  MY_ERASE_CONFIRMATION
 
 PARTS=()
 generate_parts D PART_NAMES PART_DISK PARTS
@@ -64,6 +70,8 @@ export MY_HOSTNAME="${MY_HOSTNAME}"
 export MY_USER="${MY_USER}"
 export MY_USER_PASSWORD="${MY_USER_PASSWORD}"
 export MY_ROOT_PASSWORD="${MY_ROOT_PASSWORD}"
+export MY_WIFI_NAME="${MY_WIFI_NAME}"
+export MY_WIFI_PASSWORD="${MY_WIFI_PASSWORD}"
 EOF
 
 cp "../profiles/${MY_PROFILE}.sh" /mnt/root/profile.sh
@@ -71,7 +79,8 @@ cp -r "../packages" /mnt/packages
 
 arch-chroot /mnt /bin/bash chroot.sh
 rm /mnt/chroot.sh
-rm -r /mnt/root/*
+rm -r /mnt/root/profile.sh
+rm -r /mnt/root/env.sh
 rm -r /mnt/packages
 umount -R /mnt
 reboot
