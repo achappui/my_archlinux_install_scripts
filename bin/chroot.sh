@@ -25,7 +25,6 @@ set -euo pipefail
 # Author: <me>
 # ==================================================
 
-PACKAGES_PATH="../packages"
 
 source /root/*
 
@@ -41,8 +40,8 @@ echo "root:${MY_ROOT_PASSWORD}" | chpasswd
 
 #Setup packages and user
 sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
-pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "../packages/base.list")
-pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "../packages/desktops.sway.list")
+pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/base.list")
+pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops.sway.list")
 npm install -g typescript stylelint
 
 useradd -m -G wheel -s /bin/bash ${MY_USER}
@@ -52,14 +51,14 @@ sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
 git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay
 sudo -u ${MY_USER} -H bash -c "makepkg -si --dir /home/${MY_USER}/yay"
 rm -rf /home/${MY_USER}/yay
-yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "../packages/desktops.sway.aur.list")
+yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops.sway.aur.list")
 
-pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "../packages/drivers/${CPU_DRIVERS}.list")
+pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${CPU_DRIVERS}.list")
 
 if grep -q ".aur" ${GPU_DRIVERS}; then
-    yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "../packages/drivers/${GPU_DRIVERS}.list")
+    yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${GPU_DRIVERS}.list")
 else
-    pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "../packages/drivers/${GPU_DRIVERS}.list")
+    pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${GPU_DRIVERS}.list")
 fi
 
 
@@ -162,6 +161,3 @@ chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 mkinitcpio -P
-
-# Clean envfiles
-rm -r /root/*

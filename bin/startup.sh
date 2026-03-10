@@ -67,8 +67,11 @@ export MY_ROOT_PASSWORD="${MY_ROOT_PASSWORD}"
 EOF
 
 cp "../profiles/${MY_PROFILE}.sh" /mnt/root/profile.sh
+cp -r "../packages" /mnt/packages
 
 arch-chroot /mnt /bin/bash chroot.sh
 rm /mnt/chroot.sh
+rm -r /mnt/root/*
+rm -r /mnt/packages
 umount -R /mnt
 reboot
