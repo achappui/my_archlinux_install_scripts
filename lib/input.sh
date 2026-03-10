@@ -21,16 +21,13 @@ ask_input() {
 ask_profile() {
     local PROMPT="$1"
     local VAR_NAME="$2"
-    local FULL_PATHS
     local BASENAMES=()
     local f
     local i
     local CHOICE
 
-    FULL_PATHS=(../profiles/*.sh)
-
-    for f in "${FULL_PATHS[@]}"; do
-        BASENAMES+=("$(basename "${f}" .sh)")
+    for f in ../profiles/*.sh; do
+        BASENAMES+=("$(basename "$f" .sh)")
     done
 
     echo "${PROMPT}:"
@@ -40,8 +37,8 @@ ask_profile() {
 
     while true; do
         read -p "Enter choice (1-${#BASENAMES[@]}): " CHOICE
-        if [[ "${CHOICE}" =~ ^[0-9]+$ ]] && (( CHOICE >= 1 && CHOICE <= ${#BASENAMES[@]} )); then
-            eval "${VAR_NAME}='${FULL_PATHS[$((CHOICE-1))]}'"
+        if [[ "$CHOICE" =~ ^[0-9]+$ ]] && (( CHOICE >= 1 && CHOICE <= ${#BASENAMES[@]} )); then
+            eval "${VAR_NAME}='${BASENAMES[$((CHOICE-1))]}'"
             break
         else
             echo "Invalid choice. Try again."

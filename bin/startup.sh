@@ -25,8 +25,8 @@ set -euo pipefail
 # Author: <me>
 # ==================================================
 
-source lib/input.sh
-source lib/disk.sh
+source ../lib/input.sh
+source ../lib/disk.sh
 
 # --- 2️⃣ Inputs utilisateur ---
 ask_input "Enter Hostname"              MY_HOSTNAME
@@ -36,7 +36,8 @@ ask_input "Enter User Password"         MY_USER_PASSWORD
 ask_profile "Available profiles:"       MY_PROFILE
 ask_boolean "All disks will be erased"  MY_ERASE_CONFIRMATION
 
-source ${MY_PROFILE}
+source "../profiles/${MY_PROFILE}.sh"
+
 PARTS=()
 generate_parts D PART_NAMES PART_DISK PARTS
 
