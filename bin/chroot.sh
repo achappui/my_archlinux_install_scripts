@@ -62,6 +62,7 @@ journalctl --vacuum-size=100M
 
 #Setup network wired and wifi
 systemctl enable systemd-networkd systemd-resolved
+ln -sf /run/systemd/resolve/stub-resolve/.conf /etc/resolve.conf
 
 mkdir -p /etc/systemd/network
 
@@ -132,11 +133,14 @@ echo "options snd_hda_intel power_save=0 power_save_controller=N " > /etc/modpro
 mv /user.sh /home/${MY_USER}/user.sh
 chmod +x /home/${MY_USER}/user.sh
 echo "/home/${MY_USER}/user.sh" >> /home/${MY_USER}/.bash_profile
-cat <<'EOF' >> /home/${MY_USER}/.bash_profile
-if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
-    exec sway
+
+echo "if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then" >> /home/${MY_USER}/.bash_profile
+if ! grep -q "nvidia" ${GPU_DRIVERS}; then
+    echo "exec sway --unsupported-gpu" >> /home/${MY_USER}/.bash_profile
+else
+    echo "exec sway" >> /home/${MY_USER}/.bash_profile
 fi
-EOF
+echo "fi" >> /home/${MY_USER}/.bash_profile
 
 #Copying user configs
 mkdir -p /home/${MY_USER}/.config/
