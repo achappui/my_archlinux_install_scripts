@@ -41,10 +41,6 @@ pacman -Syu --noconfirm --needed ${MY_PACMAN_PACKAGES}
 
 npm install -g typescript stylelint
 
-if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
-    pacman -Syu --noconfirm --needed mesa libva intel-ucode
-fi
-
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
@@ -53,6 +49,21 @@ echo "${MY_USER}:${MY_USER_PASSWORD}" | chpasswd
 
 mv /user_startup.sh /home/${MY_USER}/user_startup.sh
 sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
+
+git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay
+sudo -u chad -H bash -c "makepkg -si --dir /home/${MY_USER}/yay"
+rm -rf /home/${MY_USER}/yay
+
+yay -Syu --noconfirm --needed ${MY_YAY_PACKAGES}
+
+if [ grep ".aur" ${DRIVERS} != "" ]; then
+    yay -Syu --noconfirm --needed ${MY_YAY_PACKAGES}
+fi
+
+else [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
+    pacman -Syu --noconfirm --needed
+fi
+
 
 if [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
   mkdir -p /home/${MY_USER}/.docker-data
@@ -68,6 +79,8 @@ EOF
   journalctl --vacuum-size=100M 
 fi
 
+
+#Setup network wired and wifi
 systemctl enable --now systemd-networkd systemd-resolved
 
 mkdir -p /etc/systemd/network
@@ -113,10 +126,12 @@ EOF
     systemctl restart iwd
 fi
 
+#Setup docker
 systemctl enable docker
 
 usermod -aG docker ${MY_USER}
 
+#Setup fonts
 mkdir -p /tmp/NerdFont
 curl -L https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip -o /tmp/NerdFont/JetBrainsMono.zip
 unzip /tmp/NerdFont/JetBrainsMono.zip -d /tmp/NerdFont
@@ -125,19 +140,34 @@ cp /tmp/NerdFont/*.ttf /usr/share/fonts/TTF/
 fc-cache -fv
 rm -rf /tmp/NerdFont
 
+#Setup je sais pas
 mkdir -p /etc/modprobe.d
 echo "options snd_hda_intel power_save=0 power_save_controller=N " > /etc/modprobe.d/audio_disable_autosuspend.conf
 
 # echo "/home/${MY_USER}/user_startup.sh" >> /home/${MY_USER}/.bash_profile
+
+#Setup Sway autoStart
 cat <<'EOF' >> /home/${MY_USER}/.bash_profile
 if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
     exec sway
 fi
 EOF
 
+#Copying user configs
 mkdir -p /home/${MY_USER}/.config/
 cp -r /config/* /home/${MY_USER}/.config
 rm -r /config
+
+if [ ${MY_WHICH_COMPUTER} = "home_papa" ]; then
+    echo "output DP-4 pos 0 0 res 1920x1200@60Hz" >> /home/${MY_USER}/.config/sway/config
+    echo "output HDMI-A-0 pos 1920 0 res 1920x1200@60Hz" >> /home/${MY_USER}/.config/sway/config
+elif [ ${MY_WHICH_COMPUTER} = "home_maman" ]; then
+    echo "output HDMI-A-1 pos 0 0 res 1920x1200@60Hz" >> /home/${MY_USER}/.config/sway/config
+    echo "output DVI-D-1 pos 1920 0 res 1680x1050@60Hz" >> /home/${MY_USER}/.config/sway/config
+elif [ ${MY_WHICH_COMPUTER} = "home_papa_imac" ]; then
+    echo "output DP-3 pos 0 0 res 1920x1080@60Hz" >> /home/${MY_USER}/.config/sway/config
+fi
+
 
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 
