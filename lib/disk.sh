@@ -48,27 +48,29 @@ create_partitions() {
 format_and_mount() {
     local -n parts_ref="$1"
     local -n names_ref="$2"
+    local sorted_parts=()
+    local sorted_names=()
     local i
-    local part
-    local name
 
     echo "=== Formatting and mounting partitions ==="
-    for i in "${!parts_ref[@]}"; do
-        part="${parts_ref[$i]}"
-        name="${names_ref[$i]}"
+
+    local order=("root" "home" "swap" "EFI")
+
+    for name_in_order in "${order[@]}"; do
+        for i in "${!parts_ref[@]}"; do
+            if [[ "${names_ref[$i]}" == "$name_in_order" ]]; then
+                sorted_parts+=("${parts_ref[$i]}")
+                sorted_names+=("${names_ref[$i]}")
+            fi
+        done
+    done
+
+    for i in "${!sorted_parts[@]}"; do
+        local part="${sorted_parts[$i]}"
+        local name="${sorted_names[$i]}"
         echo "Processing ${part} (${name})..."
 
         case "${name}" in
-            EFI)
-                echo "Formatting ${part} as FAT32 and mounting at /mnt/boot"
-                mkfs.fat -F32 "${part}"
-                mount --mkdir "${part}" /mnt/boot
-                ;;
-            swap)
-                echo "Formatting ${part} as swap"
-                mkswap -f "${part}"
-                swapon "${part}"
-                ;;
             root)
                 echo "Formatting ${part} as ext4 and mounting at /mnt"
                 mkfs.ext4 -F "${part}"
@@ -79,11 +81,22 @@ format_and_mount() {
                 mkfs.ext4 -F "${part}"
                 mount --mkdir "${part}" /mnt/home
                 ;;
+            swap)
+                echo "Formatting ${part} as swap"
+                mkswap -f "${part}"
+                swapon "${part}"
+                ;;
+            EFI)
+                echo "Formatting ${part} as FAT32 and mounting at /mnt/boot"
+                mkfs.fat -F32 "${part}"
+                mount --mkdir "${part}" /mnt/boot
+                ;;
             *)
                 echo "Unknown partition name: ${name}, skipping..."
                 ;;
         esac
     done
+
     echo "All partitions formatted and mounted."
 }
 

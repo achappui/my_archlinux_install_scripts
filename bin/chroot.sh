@@ -41,7 +41,7 @@ echo "root:${MY_ROOT_PASSWORD}" | chpasswd
 #Setup packages and user
 sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
 pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/base.list")
-pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops.sway.list")
+pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops/sway.list")
 npm install -g typescript stylelint
 
 useradd -m -G wheel -s /bin/bash ${MY_USER}
@@ -49,10 +49,10 @@ echo "${MY_USER}:${MY_USER_PASSWORD}" | chpasswd
 sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
 
 sudo -u ${MY_USER} -H bash -c "git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay"
-sudo -u ${MY_USER} -H bash -c "makepkg --noconfirm --needed"
+sudo -u ${MY_USER} -H bash -c "makepkg --noconfirm --needed --dir /home/${MY_USER}/yay"
 pacman -U --noconfirm "/home/${MY_USER}/yay"/*.pkg.tar.zst
 rm -rf /home/${MY_USER}/yay
-yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops.sway.aur.list")
+yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops/sway.aur.list")
 
 pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${CPU_DRIVERS}.list")
 

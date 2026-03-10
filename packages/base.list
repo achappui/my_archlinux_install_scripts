@@ -11,6 +11,7 @@ python-flake8
 npm
 shellcheck
 tidy
+go
 
 # --------------------------------------------------
 # CLI utilities
