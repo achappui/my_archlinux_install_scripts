@@ -118,11 +118,12 @@ Name=${MY_WIFI_INTERFACE}
 [Network]
 DHCP=yes
 EOF
-fi
-
 if [ -n "${MY_IS_WIFI_ACTIVATED}" ]; then
     systemctl enable iwd
 fi
+
+fi
+
 
 #Setup docker
 systemctl enable docker
