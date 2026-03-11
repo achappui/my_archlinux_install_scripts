@@ -6,12 +6,11 @@ gcc
 make
 git
 python
-python-pip
 python-flake8
-npm
 shellcheck
 tidy
-go
+typescript
+stylelint
 
 # --------------------------------------------------
 # CLI utilities

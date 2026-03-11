@@ -29,6 +29,7 @@ source /root/env.sh
 source /root/profile.sh
 
 #Setup basic things
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf #DNS
 ln -sf /usr/share/zoneinfo/${MY_CLOCK_REGION} /etc/localtime
 hwclock --systohc
 sed -i "/^#${MY_LOCALE}/s/^#//" /etc/locale.gen
@@ -40,30 +41,40 @@ echo "root:${MY_ROOT_PASSWORD}" | chpasswd
 
 #Setup packages and user
 sed -i '/\[multilib\]/,/Include/ s/^#//' /etc/pacman.conf
-pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/base.list")
-pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops/sway.list")
-npm install -g typescript stylelint
+
+PACMAN_PKGS=(
+$(grep -vE '^\s*#|^\s*$' /packages/base.list)
+$(grep -vE '^\s*#|^\s*$' /packages/desktops/sway.list)
+$(grep -vE '^\s*#|^\s*$' /packages/drivers/${CPU_DRIVERS}.list)
+)
+
+if ! echo ${GPU_DRIVERS} | grep -q ".aur"; then
+    PACMAN_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/${GPU_DRIVERS}.list))
+fi
+
+pacman -Syu --noconfirm --needed "${PACMAN_PKGS[@]}"
 
 useradd -m -G wheel -s /bin/bash ${MY_USER}
 echo "${MY_USER}:${MY_USER_PASSWORD}" | chpasswd
 sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
-
-pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${CPU_DRIVERS}.list")
-
-if ! echo ${GPU_DRIVERS} | grep -q ".aur"; then
-    pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${GPU_DRIVERS}.list")
-fi
+echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 sudo -u ${MY_USER} git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay
 sudo -u ${MY_USER} makepkg -s --noconfirm --needed --dir /home/${MY_USER}/yay
 pacman -U --noconfirm --needed /home/${MY_USER}/yay/yay-*.pkg.tar.zst
 rm -rf /home/${MY_USER}/yay
 
-sudo -u ${MY_USER} yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops/sway.aur.list")
+AUR_PKGS=(
+$(grep -vE '^\s*#|^\s*$' /packages/desktops/sway.aur.list)
+)
 
 if echo ${GPU_DRIVERS} | grep -q ".aur"; then
-    sudo -u ${MY_USER} yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${GPU_DRIVERS}.list")
+    AUR_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/${GPU_DRIVERS}.list))
 fi
+
+sudo -u ${MY_USER} yay -S --noconfirm --needed "${AUR_PKGS[@]}"
+
+sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers
 
 #Setup cache policies
 systemctl enable paccache.timer
@@ -72,7 +83,6 @@ journalctl --vacuum-size=100M
 
 #Setup network wired and wifi
 systemctl enable systemd-networkd systemd-resolved
-ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 mkdir -p /etc/systemd/network
 
@@ -125,15 +135,6 @@ cat <<EOF >> /etc/docker/daemon.json
   "data-root": "/home/${MY_USER}/.docker-data"
 }
 EOF
-
-#Setup fonts
-mkdir -p /tmp/NerdFont
-curl -L https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.zip -o /tmp/NerdFont/JetBrainsMono.zip
-unzip /tmp/NerdFont/JetBrainsMono.zip -d /tmp/NerdFont
-mkdir -p /usr/share/fonts/TTF
-cp /tmp/NerdFont/*.ttf /usr/share/fonts/TTF/
-fc-cache -fv
-rm -rf /tmp/NerdFont
 
 #Fix sound parasite
 mkdir -p /etc/modprobe.d
