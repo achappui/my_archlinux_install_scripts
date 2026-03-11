@@ -66,6 +66,9 @@ format_and_mount PARTS PART_NAMES
 
 pacstrap -K /mnt $(grep -vE '^\s*#|^\s*$' "../packages/pacstrap.list")
 genfstab -U /mnt >> /mnt/etc/fstab
+
+rm /mnt/etc/resolv.conf
+ln -sf /mnt/run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf #DNS
 cp chroot.sh /mnt/chroot.sh
 cp user.sh /mnt/user.sh
 cp -r ../config /mnt/config

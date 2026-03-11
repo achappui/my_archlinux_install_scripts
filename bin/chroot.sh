@@ -29,7 +29,6 @@ source /root/env.sh
 source /root/profile.sh
 
 #Setup basic things
-ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf #DNS
 ln -sf /usr/share/zoneinfo/${MY_CLOCK_REGION} /etc/localtime
 hwclock --systohc
 sed -i "/^#${MY_LOCALE}/s/^#//" /etc/locale.gen
