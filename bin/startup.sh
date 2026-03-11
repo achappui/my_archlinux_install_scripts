@@ -28,6 +28,14 @@ set -euo pipefail
 source ../lib/input.sh
 source ../lib/disk.sh
 
+MY_HOSTNAME=""
+MY_ROOT_PASSWORD=""
+MY_USER=""
+MY_USER_PASSWORD=""
+MY_PROFILE=""
+MY_WIFI_NAME=""
+MY_WIFI_PASSWORD=""
+
 # --- 2️⃣ Inputs utilisateur ---
 ask_input "Enter Hostname"              MY_HOSTNAME
 ask_input "Enter Root Password"         MY_ROOT_PASSWORD

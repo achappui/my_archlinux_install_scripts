@@ -54,6 +54,16 @@ if ! echo ${GPU_DRIVERS} | grep -q ".aur"; then
     pacman -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${GPU_DRIVERS}.list")
 fi
 
+sudo -u ${MY_USER} git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay
+sudo -u ${MY_USER} makepkg -s --noconfirm --needed --dir /home/${MY_USER}/yay
+pacman -U --noconfirm --needed /home/${MY_USER}/yay/yay-*.pkg.tar.zst
+rm -rf /home/${MY_USER}/yay
+
+sudo -u ${MY_USER} yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/desktops/sway.aur.list")
+
+if echo ${GPU_DRIVERS} | grep -q ".aur"; then
+    sudo -u ${MY_USER} yay -Syu --noconfirm --needed $(grep -vE '^\s*#|^\s*$' "/packages/drivers/${GPU_DRIVERS}.list")
+fi
 
 #Setup cache policies
 systemctl enable paccache.timer
@@ -62,7 +72,7 @@ journalctl --vacuum-size=100M
 
 #Setup network wired and wifi
 systemctl enable systemd-networkd systemd-resolved
-ln -sf /run/systemd/resolve/stub-resolve/.conf /etc/resolve.conf
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 mkdir -p /etc/systemd/network
 
@@ -134,13 +144,13 @@ mv /user.sh /home/${MY_USER}/user.sh
 chmod +x /home/${MY_USER}/user.sh
 echo "/home/${MY_USER}/user.sh" >> /home/${MY_USER}/.bash_profile
 
-echo "if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then" >> /home/${MY_USER}/.bash_profile
+echo 'if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then' >> /home/${MY_USER}/.bash_profile
 if echo ${GPU_DRIVERS} | grep -q "nvidia"; then
-    echo "exec sway --unsupported-gpu" >> /home/${MY_USER}/.bash_profile
+    echo 'exec sway --unsupported-gpu' >> /home/${MY_USER}/.bash_profile
 else
-    echo "exec sway" >> /home/${MY_USER}/.bash_profile
+    echo 'exec sway' >> /home/${MY_USER}/.bash_profile
 fi
-echo "fi" >> /home/${MY_USER}/.bash_profile
+echo 'fi' >> /home/${MY_USER}/.bash_profile
 
 #Copying user configs
 mkdir -p /home/${MY_USER}/.config/
@@ -151,12 +161,15 @@ for item in "${SWAY_MONITORS[@]}"; do
     echo "$item" >> /home/${MY_USER}/.config/sway/config
 done
 
-#Copy necessary variables
-cp /root/profile.sh /home/chad/profile.sh
-cp -r /packages /home/chad
-
 # Set ownership of user home and configs
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
+
+#Fix imac auto reboot
+if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
+    echo "ARPT" | tee "/proc/acpi/wakeup"
+    echo "GIGE" | tee "/proc/acpi/wakeup"
+    echo "XHC1" | tee "/proc/acpi/wakeup"
+fi
 
 # Install bootloader and generate config
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
