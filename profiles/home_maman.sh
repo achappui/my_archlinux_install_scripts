@@ -21,4 +21,4 @@ export MY_KEYMAP="us"
 
 export MY_IS_WIFI_SETUP="false"
 
-export SWAY_MONITORS=("output HDMI-A-1 pos 0 0 res 1920x1200@60Hz" "output DVI-D-1 pos 1920 0 res 1680x1050@60Hz")
+export SWAY_MONITORS=("output HDMI-A-3 pos 0 0 res 1920x1200@60Hz" "output DVI-D-1 pos 1920 0 res 1680x1050@60Hz")
