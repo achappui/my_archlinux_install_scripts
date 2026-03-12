@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Nvim in Foot
+Comment=Open any file with nvim in foot
+Exec=/usr/local/bin/open-with-nvim.sh %f
+Terminal=false
+Type=Application
+MimeType=application/octet-stream;inode/directory;
+NoDisplay=false

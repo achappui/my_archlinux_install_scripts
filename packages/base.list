@@ -24,6 +24,7 @@ man-db
 man-pages
 texinfo
 nvim
+lf
 
 # --------------------------------------------------
 # Compression / archives

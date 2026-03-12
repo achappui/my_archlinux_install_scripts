@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+choices=$(cat <<'EOF'
+Firefox\0icon\x1ffirefox
+Thunar\0icon\x1forg.xfce.thunar
+Foot\0icon\x1ffoot
+HTop\0icon\x1fhtop
+GoogleChrome\0icon\x1fgoogle-chrome
+Brave\0icon\x1fbrave-desktop
+Pinta\0icon\x1fcom.github.PintaProject.Pinta
+Mousepad\0icon\x1forg.xfce.mousepad
+EOF
+)
+
+# Lancement du menu Fuzzel
+sel="$(printf '%b\n' "$choices" | fuzzel --dmenu)"
+
+# Exécution selon le choix
+case "$sel" in
+  Firefox*) firefox ;;
+  Thunar*) thunar ;;
+  Foot*) foot ;;
+  HTop*) foot -e htop ;;
+  GoogleChrome*) google-chrome ;;
+  Brave*) brave ;;
+  Pinta*) pinta ;;
+  Mousepad*) mousepad ;;
+esac

@@ -25,8 +25,8 @@ set -euo pipefail
 # Author: <me>
 # ==================================================
 
-source ../lib/input.sh
-source ../lib/disk.sh
+source ./lib/input.sh
+source ./lib/disk.sh
 
 MY_HOSTNAME=""
 MY_ROOT_PASSWORD=""
@@ -43,7 +43,7 @@ ask_input "Enter User Name"             MY_USER
 ask_input "Enter User Password"         MY_USER_PASSWORD
 ask_profile "Available profiles:"       MY_PROFILE
 
-source "../profiles/${MY_PROFILE}.sh"
+source "./profiles/${MY_PROFILE}.sh"
 
 if [ "${MY_IS_WIFI_SETUP}" = "true" ]; then
   ask_input "Enter WiFi Name" MY_WIFI_NAME
@@ -64,15 +64,16 @@ wipe_disks "${MY_ERASE_CONFIRMATION}" "${D[@]}"
 create_partitions PART_NAMES PART_DISK PART_SIZES PART_TYPES
 format_and_mount PARTS PART_NAMES
 
-pacstrap -K /mnt $(grep -vE '^\s*#|^\s*$' "../packages/pacstrap.list")
+pacstrap -K /mnt $(grep -vE '^\s*#|^\s*$' "./packages/pacstrap.list")
 genfstab -U /mnt >> /mnt/etc/fstab
 
 rm /mnt/etc/resolv.conf
 ln -sf /mnt/run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf #DNS
 cp chroot.sh /mnt/chroot.sh
 cp user.sh /mnt/user.sh
-cp -r ../config /mnt/config
+cp -r ./config /mnt/config
 
+# Copy environment
 cat <<EOF > /mnt/root/env.sh
 export MY_HOSTNAME="${MY_HOSTNAME}"
 export MY_USER="${MY_USER}"
@@ -81,9 +82,23 @@ export MY_ROOT_PASSWORD="${MY_ROOT_PASSWORD}"
 export MY_WIFI_NAME="${MY_WIFI_NAME}"
 export MY_WIFI_PASSWORD="${MY_WIFI_PASSWORD}"
 EOF
-
-cp "../profiles/${MY_PROFILE}.sh" /mnt/root/profile.sh
-cp -r "../packages" /mnt/packages
+cp "./profiles/${MY_PROFILE}.sh" /mnt/root/profile.sh
+# Copy Applications
+mkdir -p /mnt/usr/share/applications
+cp -r ./applications/* /mnt/usr/share/applications
+# Copy .config
+mkdir -p /mnt/home/${MY_USER}/.config
+cp -r ./config/* /mnt/home/${MY_USER}/.config
+# Copy Packages
+cp -r "./packages" /mnt/packages
+# Copy bin
+mkdir -p /mnt/usr/local/bin
+cp -r ./bin/* /mnt/usr/local/bin
+# Copy scripts
+cp chroot.sh /mnt/chroot.sh
+chmod +x /mnt/chroot.sh
+cp user.sh /mnt/home/${MY_USER}/user.sh
+chmod +x /mnt/home/${MY_USER}/user.sh
 
 arch-chroot /mnt /bin/bash chroot.sh
 rm /mnt/chroot.sh

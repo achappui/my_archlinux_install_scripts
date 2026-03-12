@@ -1,0 +1,45 @@
+[Default Applications]
+# Documents / web
+application/pdf=google-chrome.desktop
+text/html=google-chrome.desktop
+text/plain=org.xfce.mousepad.desktop
+x-scheme-handler/http=google-chrome.desktop
+x-scheme-handler/https=google-chrome.desktop
+x-scheme-handler/about=google-chrome.desktop
+x-scheme-handler/unknown=google-chrome.desktop
+
+# Images
+image/jpeg=feh.desktop
+image/png=feh.desktop
+image/gif=feh.desktop
+image/bmp=feh.desktop
+image/webp=feh.desktop
+image/svg+xml=feh.desktop
+image/tiff=feh.desktop
+
+# Audio
+audio/mpeg=mpv.desktop
+audio/ogg=mpv.desktop
+audio/flac=mpv.desktop
+audio/wav=mpv.desktop
+audio/x-m4a=mpv.desktop
+audio/aac=mpv.desktop
+
+# Vidéo
+video/mp4=mpv.desktop
+video/webm=mpv.desktop
+video/avi=mpv.desktop
+video/mkv=mpv.desktop
+video/mov=mpv.desktop
+
+# Archives
+application/zip=open-archive.desktop
+application/x-tar=open-archive.desktop
+application/x-gzip=open-archive.desktop
+application/x-bzip2=open-archive.desktop
+application/x-xz=open-archive.desktop
+application/x-7z-compressed=open-archive.desktop
+
+# Dossiers et autres fichiers
+inode/directory=thunar.desktop
+application/octet-stream=nvim-foot.desktop

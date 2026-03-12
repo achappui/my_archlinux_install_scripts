@@ -18,12 +18,17 @@ set $right l
 # Your preferred terminal emulator
 set $term foot
 # Your preferred application launcher
-set $menu fuzzel
+set $menu fuzzel-safe
+
+#Screen Select
+bindsym $mod+Shift+s exec grim -g "$(slurp)" - | wl-copy
+#Screen Full Single Screen
+bindsym Print exec grim -o "$(swaymsg -t get_outputs | jq -r '.[] | select(.focused).name')" - | wl-copy
 
 ### Output configuration
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+output * background #000000 solid_color
 #
 # Example configuration:
 #

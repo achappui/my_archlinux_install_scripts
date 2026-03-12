@@ -18,6 +18,8 @@ wl-clipboard
 xdg-desktop-portal
 xdg-desktop-portal-wlr
 thunar
+tumbler
+ffmpegthumbnailer
 mousepad
 
 # --------------------------------------------------
@@ -49,3 +51,9 @@ ttf-liberation
 ttf-nerd-fonts-symbols
 ttf-jetbrains-mono-nerd
 fontconfig
+
+# --------------------------------------------------
+# Theme Icons
+# --------------------------------------------------
+adwaita-icon-theme
+papirus-icon-theme

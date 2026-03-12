@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+file="$1"
+base="${file##*/}"                  # nom du fichier
+base="${base%.*}"                   # sans extension
+dest="${2:-.}"
+
+# Créer un dossier unique si nécessaire
+target="$dest/$base"
+n=1
+while [ -e "$target" ]; do
+    target="$dest/${base}_$n"
+    ((n++))
+done
+mkdir -p "$target"
+
+# Extraction selon le type
+case "$file" in
+  *.zip) unzip "$file" -d "$target" ;;
+  *.tar) tar xf "$file" -C "$target" ;;
+  *.tar.gz|*.tgz) tar xzf "$file" -C "$target" ;;
+  *.tar.bz2) tar xjf "$file" -C "$target" ;;
+  *.tar.xz) tar xJf "$file" -C "$target" ;;
+  *.gz) gunzip -c "$file" > "$target/$base" ;;
+  *.bz2) bunzip2 -c "$file" > "$target/$base" ;;
+  *.xz) unxz -c "$file" > "$target/$base" ;;
+  *.7z) 7z x "$file" -o"$target" ;;
+  *) echo "Type non supporté" ;;
+esac

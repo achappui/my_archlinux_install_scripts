@@ -26,7 +26,7 @@ ask_profile() {
     local i
     local CHOICE
 
-    for f in ../profiles/*.sh; do
+    for f in ./profiles/*.sh; do
         BASENAMES+=("$(basename "$f" .sh)")
     done
 

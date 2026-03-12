@@ -124,7 +124,6 @@ fi
 
 fi
 
-
 #Setup docker
 systemctl enable docker
 usermod -aG docker ${MY_USER}
@@ -140,11 +139,9 @@ EOF
 mkdir -p /etc/modprobe.d
 echo "options snd_hda_intel power_save=0 power_save_controller=N " > /etc/modprobe.d/audio_disable_autosuspend.conf
 
-#Setup Sway start after login
-mv /user.sh /home/${MY_USER}/user.sh
-chmod +x /home/${MY_USER}/user.sh
+#Setup start after login
 echo "/home/${MY_USER}/user.sh" >> /home/${MY_USER}/.bash_profile
-
+echo "export GTK_THEME=Adwaita:dark" >> /home/${MY_USER}/.bash_profile
 echo 'if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then' >> /home/${MY_USER}/.bash_profile
 if echo ${GPU_DRIVERS} | grep -q "nvidia"; then
     echo 'exec sway --unsupported-gpu' >> /home/${MY_USER}/.bash_profile
@@ -153,11 +150,7 @@ else
 fi
 echo 'fi' >> /home/${MY_USER}/.bash_profile
 
-#Copying user configs
-mkdir -p /home/${MY_USER}/.config/
-cp -r /config/* /home/${MY_USER}/.config
-rm -rf /config
-
+#Adapt Sway config
 for item in "${SWAY_MONITORS[@]}"; do
     echo "$item" >> /home/${MY_USER}/.config/sway/config
 done
@@ -171,6 +164,15 @@ if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
     echo "GIGE" | tee "/proc/acpi/wakeup"
     echo "XHC1" | tee "/proc/acpi/wakeup"
 fi
+
+# Set Firewall rules
+nft flush ruleset
+nft add table inet filter
+nft add chain inet filter input { type filter hook input priority 0 \; policy drop \; }
+nft add chain inet filter output { type filter hook output priority 0 \; policy accept \; }
+nft add chain inet filter forward { type filter hook forward priority 0 \; policy drop \; }
+nft add rule inet filter input iif lo accept
+nft add rule inet filter input ct state established,related accept
 
 # Install bootloader and generate config
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
