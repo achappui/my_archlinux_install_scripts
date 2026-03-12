@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+DEVNAME="$1"
+ACTION="$2"
+
+PART=$(basename ${DEVNAME})
+MOUNT_BASE="/media"
+BASE_SAVER="/run/usb-automount/${PART}_base_usb_mount"
+
+mkdir -p "/run/usb-automount"
+
+if [ "$ACTION" = "add" ]; then
+    LABEL=$(lsblk -no LABEL "${DEVNAME}" | tr -d ' ')
+    [ -z "$LABEL" ] && LABEL=$(basename "${DEVNAME}")
+    MOUNT_POINT="$MOUNT_BASE/$LABEL"
+    mkdir -p "$MOUNT_POINT"
+    mkdir -p ".${MOUNT_POINT}"
+    echo "$(lsblk -no PKNAME $DEVNAME)" > "${BASE_SAVER}"
+    mount "$DEVNAME" "$MOUNT_POINT"
+elif [ "$ACTION" = "remove" ]; then
+    MOUNT_POINT=$(grep "$(cat ${BASE_SAVER})" /proc/mounts | awk '{print $2}')
+    if [ -n "${MOUNT_POINT}" ]; then
+        /usr/bin/umount -l ${MOUNT_POINT}
+        rmdir ${MOUNT_POINT}
+    fi
+    rm ${BASE_SAVER}
+    find "$MOUNT_BASE" -mindepth 1 -maxdepth 1 -type d -empty -delete
+fi

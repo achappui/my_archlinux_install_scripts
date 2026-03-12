@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+DEV="$1"
+if [ -z "$DEV" ]; then
+    echo "Usage: $0 /media/<label>"
+    exit 1
+fi
+
+sudo /usr/bin/umount "$DEV"

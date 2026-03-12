@@ -174,6 +174,28 @@ nft add chain inet filter forward { type filter hook forward priority 0 \; polic
 nft add rule inet filter input iif lo accept
 nft add rule inet filter input ct state established,related accept
 
+# Set usb automount with udev and systemd
+echo "${MY_USER} ALL=(ALL) NOPASSWD: /usr/bin/umount /media/*" >> /etc/sudoers
+echo "${MY_USER} ALL=(ALL) NOPASSWD: /usr/bin/umount /media/*/" >> /etc/sudoers
+cat <<EOF > /etc/udev/rules.d/99-usb-mount.rules
+ACTION=="add", SUBSYSTEM=="block", ENV{DEVTYPE}=="partition", ENV{ID_TYPE}=="disk", TAG+="systemd", ENV{SYSTEMD_WANTS}="usb-mount@%k.service"
+EOF
+udevadm control --reload-rules
+udevadm trigger
+
+cat <<EOF > /etc/systemd/system/usb-mount@.service
+[Unit]
+Description=Automount USB %I
+After=dev-%i.device
+BindsTo=dev-%i.device
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/usb-mount /dev/%I add
+ExecStop=/usr/local/bin/usb-mount /dev/%I remove
+RemainAfterExit=yes
+EOF
+
 # Install bootloader and generate config
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
