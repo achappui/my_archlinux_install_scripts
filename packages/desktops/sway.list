@@ -34,6 +34,8 @@ mpv
 feh
 imlib2
 gd
+gpu-screen-recorder
+gpu-screen-recorder-ui
 
 # --------------------------------------------------
 # Browser
