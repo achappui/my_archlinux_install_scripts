@@ -1,28 +1,36 @@
 #!/usr/bin/env bash
 
-choices=$(cat <<'EOF'
-Firefox\0icon\x1ffirefox
-Thunar\0icon\x1forg.xfce.thunar
-Foot\0icon\x1ffoot
-HTop\0icon\x1fhtop
-GoogleChrome\0icon\x1fgoogle-chrome
-Brave\0icon\x1fbrave-desktop
-Pinta\0icon\x1fcom.github.PintaProject.Pinta
-Mousepad\0icon\x1forg.xfce.mousepad
-EOF
+# Utilisation de printf pour gérer correctement les séquences d'échappement \0 et \x1f
+choices=$(printf '%b' \
+"Firefox\0icon\x1ffirefox\n" \
+"Thunar\0icon\x1forg.xfce.thunar\n" \
+"Foot\0icon\x1ffoot\n" \
+"HTop\0icon\x1fhtop\n" \
+"GoogleChrome\0icon\x1fgoogle-chrome\n" \
+"Brave\0icon\x1fbrave-desktop\n" \
+"Pinta\0icon\x1fcom.github.PintaProject.Pinta\n" \
+"Mousepad\0icon\x1forg.xfce.mousepad\n" \
+"lf\0icon\x1futilities-terminal\n" \
+"audio-recorder\0icon\x1faudio-input-microphone\n" \
+"video-recorder\0icon\x1fcamera-video\n" \
+"sound-settings\0icon\x1fmultimedia-volume-control"
 )
 
-# Lancement du menu Fuzzel
-sel="$(printf '%b\n' "$choices" | fuzzel --dmenu)"
+# Lancement du menu Fuzzel en mode dmenu
+sel=$(echo -e "$choices" | fuzzel --dmenu)
 
-# Exécution selon le choix
+# Exécution selon le choix (on utilise des patterns avec * pour ignorer l'icône dans le match)
 case "$sel" in
   Firefox*) firefox ;;
   Thunar*) thunar ;;
   Foot*) foot ;;
-  HTop*) foot -e htop ;;
-  GoogleChrome*) google-chrome ;;
+  HTop*) foot htop ;;
+  GoogleChrome*) google-chrome-stable ;;
   Brave*) brave ;;
   Pinta*) pinta ;;
   Mousepad*) mousepad ;;
+  lf*) foot lf ;;
+  audio-recorder*) foot audio-recorder ;;
+  video-recorder*) foot grs-ui ;;
+  sound-settings*) foot pavucontrol ;;
 esac

@@ -4,9 +4,9 @@ ACTION="$2"
 
 PART=$(basename ${DEVNAME})
 MOUNT_BASE="/media"
-BASE_SAVER="/run/usb-automount/${PART}_base_usb_mount"
+BASE_SAVER="/run/disk-automount/${PART}_base_usb_mount"
 
-mkdir -p "/run/usb-automount"
+mkdir -p "/run/disk-automount"
 
 if [ "$ACTION" = "add" ]; then
     LABEL=$(lsblk -no LABEL "${DEVNAME}" | tr -d ' ')
@@ -19,7 +19,7 @@ if [ "$ACTION" = "add" ]; then
 elif [ "$ACTION" = "remove" ]; then
     MOUNT_POINT=$(grep "$(cat ${BASE_SAVER})" /proc/mounts | awk '{print $2}')
     if [ -n "${MOUNT_POINT}" ]; then
-        /usr/bin/umount -l ${MOUNT_POINT}
+        umount -l ${MOUNT_POINT}
         rmdir ${MOUNT_POINT}
     fi
     rm ${BASE_SAVER}

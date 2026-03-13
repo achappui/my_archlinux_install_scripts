@@ -1,0 +1,9 @@
+# --------------------------------------------------
+# Printer Dependencies
+# --------------------------------------------------
+cups
+ghostscript
+gsfonts
+avahi
+nss-mdns
+simple-scan

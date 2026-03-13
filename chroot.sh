@@ -51,6 +51,10 @@ if ! echo ${GPU_DRIVERS} | grep -q ".aur"; then
     PACMAN_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/${GPU_DRIVERS}.list))
 fi
 
+if grep -q ${PROFILE} "papa"; then
+    PACMAN_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/printer.list))
+fi
+
 pacman -Syu --noconfirm --needed "${PACMAN_PKGS[@]}"
 
 useradd -m -G wheel -s /bin/bash ${MY_USER}
@@ -69,6 +73,10 @@ $(grep -vE '^\s*#|^\s*$' /packages/desktops/sway.aur.list)
 
 if echo ${GPU_DRIVERS} | grep -q ".aur"; then
     AUR_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/${GPU_DRIVERS}.list))
+fi
+
+if grep -q ${PROFILE} "papa"; then
+    AUR_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/brother-MFC_L8690CDW.aur.list))
 fi
 
 sudo -u ${MY_USER} yay -S --noconfirm --needed "${AUR_PKGS[@]}"
@@ -138,6 +146,8 @@ EOF
 #Fix sound parasite
 mkdir -p /etc/modprobe.d
 echo "options snd_hda_intel power_save=0 power_save_controller=N " > /etc/modprobe.d/audio_disable_autosuspend.conf
+#Fix shutdownissue
+sed -i 's/#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/' /etc/systemd/system.conf
 
 #Setup start after login
 echo "/home/${MY_USER}/user.sh" >> /home/${MY_USER}/.bash_profile
@@ -158,21 +168,37 @@ done
 # Set ownership of user home and configs
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 
-#Fix imac auto reboot
-if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
-    echo "ARPT" | tee "/proc/acpi/wakeup"
-    echo "GIGE" | tee "/proc/acpi/wakeup"
-    echo "XHC1" | tee "/proc/acpi/wakeup"
-fi
-
 # Set Firewall rules
-nft flush ruleset
-nft add table inet filter
-nft add chain inet filter input { type filter hook input priority 0 \; policy drop \; }
-nft add chain inet filter output { type filter hook output priority 0 \; policy accept \; }
-nft add chain inet filter forward { type filter hook forward priority 0 \; policy drop \; }
-nft add rule inet filter input iif lo accept
-nft add rule inet filter input ct state established,related accept
+systemctl enable nftables
+
+cat <<EOF > /etc/nftables.conf
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table inet filter {
+    chain input {
+        type filter hook input priority 0; policy drop;
+
+        iif lo accept
+        ct state established,related accept
+
+        icmp type echo-request accept
+        icmpv6 type echo-request accept
+        #Impression + scanne brother
+        udp dport 5353 accept
+        udp dport 631 accept
+        tcp dport 631 accept
+        udp dport 54921-54925 accept
+    }
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+    }
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}
+EOF
 
 # Set usb automount with udev and systemd
 echo "${MY_USER} ALL=(ALL) NOPASSWD: /usr/bin/umount /media/*" >> /etc/sudoers
@@ -196,7 +222,35 @@ ExecStop=/usr/local/bin/usb-mount /dev/%I remove
 RemainAfterExit=yes
 EOF
 
+# Set up brother printer
+if grep -q ${PROFILE} "papa"; then
+    systemctl enable cups
+    systemctl enable avahi-daemon
+
+    sed -i 's/mymachines /mymachines mdns_minimal [NOTFOUND=return] /' /etc/nsswitch.conf
+
+    PRINTER_URL="dnssd://Brother%20MFC-L8690CDW%20series._ipp._tcp.local/?uuid=e3248000-80ce-11db-8000-3c2af4f5323b"
+    lpadmin -p Brother_MFC_L8690CDW \
+            -E \
+            -v "${PRINTER_URL}" \
+            -P /usr/share/cups/model/Brother/brother_mfcl8690cdw_printer_en.ppd
+    cupsenable Brother_MFC_L8690CDW
+    cupsaccept Brother_MFC_L8690CDW
+    lpoptions -d Brother_MFC_L8690CDW
+    brsaneconfig4 -a name="Brother_Scanner" model="MFC-L8690CDW" nodename="BRN3C2AF4F5323B.local"
+fi
+
 # Install bootloader and generate config
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+
+#Fix imac auto reboot and power up
+if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
+    echo "ARPT" | tee "/proc/acpi/wakeup"
+    echo "GIGE" | tee "/proc/acpi/wakeup"
+    #echo "XHC1" | tee "/proc/acpi/wakeup"
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/&acpi_osi=Darwin reboot=pci /' /etc/default/grub
+fi
+
 grub-mkconfig -o /boot/grub/grub.cfg
+
 mkinitcpio -P

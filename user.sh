@@ -27,6 +27,8 @@ set -euo pipefail
 
 systemctl --user enable --now pipewire pipewire-pulse wireplumber xdg-desktop-portal
 
+xdg-user-dirs-update
+
 echo "alias 'vi'='nvim'" >> /home/${MY_USER}/.bashrc
 echo "alias 'sudo'='sudo '" >> /home/${MY_USER}/.bashrc
 

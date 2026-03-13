@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+cleanup() {
+    tput cnorm
+    stty echoctl
+    echo -e
+    exit
+}
+
+trap cleanup SIGINT SIGTERM
+
+OUTPUT_DIR="/home/${USER}/Music"
+mkdir -p "${OUTPUT_DIR}"
+
+printf "Enter filename: "
+read NAME
+
+if [ -z "${NAME}" ]; then
+    NAME="audio_$(date +%Y-%m-%d_%H-%M-%S)"
+fi
+
+FILENAME="${NAME}.wav"
+
+COUNTER=1
+while [ -e "${OUTPUT_DIR}/${FILENAME}" ]; do
+    FILENAME="${NAME}_${COUNTER}.wav"
+    COUNTER=$((COUNTER + 1))
+done
+
+printf "Recording to: ${OUTPUT_DIR}/${FILENAME}\n"
+printf "Press Ctrl+C to stop\n"
+
+START_TIME=$(date +%s)
+
+pw-record --target "@DEFAULT_AUDIO_SOURCE@" --channels 1 --rate 48000 --format f32 "${OUTPUT_DIR}/${FILENAME}" >/dev/null 2>&1 &
+PW_PID=$!
+
+stty -echoctl
+tput civis
+
+while kill -0 "$PW_PID" 2>/dev/null; do
+    NOW=$(date +%s)
+    ELAPSED=$((NOW - START_TIME))
+    MINS=$((ELAPSED / 60))
+    SECS=$((ELAPSED % 60))
+    printf "\r\033[KRecording... %02d:%02d" "$MINS" "$SECS"
+    sleep 1
+done
+
+tput cnorm
+
+cleanup
