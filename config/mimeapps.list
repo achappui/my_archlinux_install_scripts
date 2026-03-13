@@ -41,5 +41,5 @@ application/x-xz=open-archive.desktop
 application/x-7z-compressed=open-archive.desktop
 
 # Dossiers et autres fichiers
-inode/directory=thunar.desktop
+inode/directory=lf.desktop
 application/octet-stream=nvim-foot.desktop

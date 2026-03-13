@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Open Archive
 Comment=Décompresse automatiquement les archives
-Exec=/usr/local/bin/open-archive.sh %f
+Exec=/usr/local/bin/open-archive %f
 Terminal=false
 Type=Application
 MimeType=application/zip;application/x-tar;application/x-gzip;application/x-bzip2;application/x-xz;application/x-7z-compressed;

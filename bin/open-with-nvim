@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Le premier argument envoyé par Firefox ou le système
+TARGET="$1"
+
+# Si aucun argument n'est fourni, on sort
+if [ -z "$TARGET" ]; then
+    exit 1
+fi
+
+foot nvim "$TARGET"

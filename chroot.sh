@@ -242,6 +242,7 @@ fi
 
 # Install bootloader and generate config
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
 
 #Fix imac auto reboot and power up
 if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
@@ -249,8 +250,7 @@ if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
     echo "GIGE" | tee "/proc/acpi/wakeup"
     #echo "XHC1" | tee "/proc/acpi/wakeup"
     sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/&acpi_osi=Darwin reboot=pci /' /etc/default/grub
+    grub-mkconfig -o /boot/grub/grub.cfg
 fi
-
-grub-mkconfig -o /boot/grub/grub.cfg
 
 mkinitcpio -P

@@ -4,8 +4,6 @@
 #
 # Read `man 5 sway` for a complete reference.
 
-exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP=sway
-
 ### Variables
 #
 # Logo key. Use Mod1 for Alt.
@@ -228,11 +226,10 @@ bindsym $mod+r mode "resize"
 #
 # Read `man 5 sway-bar` for more information about this section.
 bar {
+
     position top
 
-    # When the status_command prints a new line to stdout, swaybar updates.
-    # The default just shows the current date and time.
-    status_command while date +'%Y-%m-%d %X'; do sleep 1; done
+    status_command /home/chad/.config/sway/status.sh
 
     colors {
         statusline #ffffff
