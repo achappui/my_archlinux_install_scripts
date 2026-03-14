@@ -29,10 +29,7 @@ pipewire-alsa
 pipewire-jack
 wireplumber
 mpv
-#A DISCUTTER
-feh
-imlib2
-gd
+swayimg
 gpu-screen-recorder
 gpu-screen-recorder-ui
 

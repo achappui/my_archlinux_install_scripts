@@ -151,7 +151,6 @@ sed -i 's/#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/' /etc/systemd/sy
 
 #Setup start after login
 echo "/home/${MY_USER}/user.sh" >> /home/${MY_USER}/.bash_profile
-echo "export GTK_THEME=Adwaita:dark" >> /home/${MY_USER}/.bash_profile
 echo 'if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then' >> /home/${MY_USER}/.bash_profile
 if echo ${GPU_DRIVERS} | grep -q "nvidia"; then
     echo 'exec sway --unsupported-gpu' >> /home/${MY_USER}/.bash_profile
@@ -164,9 +163,6 @@ echo 'fi' >> /home/${MY_USER}/.bash_profile
 for item in "${SWAY_MONITORS[@]}"; do
     echo "$item" >> /home/${MY_USER}/.config/sway/config
 done
-
-# Set ownership of user home and configs
-chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 
 # Set Firewall rules
 systemctl enable nftables
@@ -196,8 +192,6 @@ table inet filter {
 EOF
 
 # Set usb automount with udev and systemd
-echo "${MY_USER} ALL=(ALL) NOPASSWD: /usr/bin/umount /media/*" >> /etc/sudoers
-echo "${MY_USER} ALL=(ALL) NOPASSWD: /usr/bin/umount /media/*/" >> /etc/sudoers
 cat <<EOF > /etc/udev/rules.d/99-usb-mount.rules
 ACTION=="add", SUBSYSTEM=="block", ENV{DEVTYPE}=="partition", ENV{ID_TYPE}=="disk", TAG+="systemd", ENV{SYSTEMD_WANTS}="usb-mount@%k.service"
 EOF
@@ -239,13 +233,16 @@ fi
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
-#Fix imac auto reboot and power up
+#Fix imac auto reboot and power up (Deprecated, useless)
 if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
     echo "ARPT" | tee "/proc/acpi/wakeup"
     echo "GIGE" | tee "/proc/acpi/wakeup"
-    #echo "XHC1" | tee "/proc/acpi/wakeup"
+    echo "XHC1" | tee "/proc/acpi/wakeup"
     sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/&acpi_osi=Darwin reboot=pci /' /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
 fi
+
+# Set ownership of user home and configs
+chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 
 mkinitcpio -P

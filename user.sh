@@ -29,10 +29,15 @@ systemctl --user enable --now pipewire pipewire-pulse wireplumber xdg-desktop-po
 
 xdg-user-dirs-update
 
-echo "alias 'vi'='nvim'" >> /home/${MY_USER}/.bashrc
-echo "alias 'sudo'='sudo '" >> /home/${MY_USER}/.bashrc
+cat <<EOF >> /home/${USER}/.bashrc
+export GTK_THEME=Adwaita:dark
+
+alias 'vi'='nvim'
+alias 'sudo'='sudo '
+EOF
 
 source /home/${USER}/.bashrc
+
 sed -i "\|/home/${USER}/user.sh|d" /home/${USER}/.bash_profile
 
 rm -- "$0"
