@@ -13,7 +13,7 @@ choices=$(printf '%b' \
 "lf\0icon\x1futilities-terminal\n" \
 "audio-recorder\0icon\x1faudio-input-microphone\n" \
 "video-recorder\0icon\x1fcamera-video\n" \
-"sound-settings\0icon\x1fmultimedia-volume-control"
+"pavucontrol\0icon\x1fmultimedia-volume-control"
 )
 
 # Lancement du menu Fuzzel en mode dmenu
@@ -32,5 +32,5 @@ case "$sel" in
   lf*) foot lf ;;
   audio-recorder*) foot audio-recorder ;;
   video-recorder*) foot grs-ui ;;
-  sound-settings*) foot pavucontrol ;;
+  pavucontrol*) foot pavucontrol ;;
 esac
