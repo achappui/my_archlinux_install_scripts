@@ -11,6 +11,8 @@ shellcheck
 tidy
 typescript
 stylelint
+go
+rust
 
 # --------------------------------------------------
 # CLI utilities
@@ -25,10 +27,17 @@ man-pages
 texinfo
 nvim
 lf
+chafa
+bat
+ffmpeg
+ffmpegthumbnailer
+mupdf-tools
+vivid
 
 # --------------------------------------------------
 # Compression / archives
 # --------------------------------------------------
+ouch
 gzip
 bzip2
 xz
@@ -36,6 +45,12 @@ p7zip
 zip
 unzip
 tar
+unrar
+zstd
+lz4
+lzip
+lzop
+lrzip
 
 # --------------------------------------------------
 # System / base utilities
@@ -62,13 +77,12 @@ efibootmgr
 # --------------------------------------------------
 # Filesystems
 # --------------------------------------------------
-ntfs-3g
-exfat-utils
-fuse-exfat
+e2fsprogs
 dosfstools
+exfatprogs
+ntfs-3g
 btrfs-progs
 xfsprogs
-e2fsprogs
 
 # --------------------------------------------------
 # Containers

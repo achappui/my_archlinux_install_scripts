@@ -185,11 +185,6 @@ table inet filter {
 
         icmp type echo-request accept
         icmpv6 type echo-request accept
-        #Impression + scanne brother
-        udp dport 5353 accept
-        udp dport 631 accept
-        tcp dport 631 accept
-        udp dport 54921-54925 accept
     }
     chain forward {
         type filter hook forward priority 0; policy drop;
@@ -237,7 +232,7 @@ if grep -q ${PROFILE} "papa"; then
     cupsenable Brother_MFC_L8690CDW
     cupsaccept Brother_MFC_L8690CDW
     lpoptions -d Brother_MFC_L8690CDW
-    brsaneconfig4 -a name="Brother_Scanner" model="MFC-L8690CDW" nodename="BRN3C2AF4F5323B.local"
+    sed -i '/chain input {/,/}/ s/}/    udp dport 5353 accept\n    }/' /etc/nftables.conf
 fi
 
 # Install bootloader and generate config

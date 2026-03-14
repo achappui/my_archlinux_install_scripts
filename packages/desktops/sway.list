@@ -18,9 +18,6 @@ wl-clipboard
 xdg-desktop-portal
 xdg-desktop-portal-wlr
 xdg-user-dirs
-thunar
-tumbler
-ffmpegthumbnailer
 mousepad
 
 # --------------------------------------------------
@@ -32,6 +29,7 @@ pipewire-alsa
 pipewire-jack
 wireplumber
 mpv
+#A DISCUTTER
 feh
 imlib2
 gd
