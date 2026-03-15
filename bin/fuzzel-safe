@@ -1,36 +1,39 @@
 #!/usr/bin/env bash
 
-# Utilisation de printf pour gérer correctement les séquences d'échappement \0 et \x1f
-choices=$(printf '%b' \
+sel=$(printf '%b' \
 "Firefox\0icon\x1ffirefox\n" \
-"Thunar\0icon\x1forg.xfce.thunar\n" \
 "Foot\0icon\x1ffoot\n" \
 "HTop\0icon\x1fhtop\n" \
 "GoogleChrome\0icon\x1fgoogle-chrome\n" \
 "Brave\0icon\x1fbrave-desktop\n" \
-"Pinta\0icon\x1fcom.github.PintaProject.Pinta\n" \
+"AzPainter\0icon\x1fazpainter\n" \
 "Mousepad\0icon\x1forg.xfce.mousepad\n" \
 "lf\0icon\x1futilities-terminal\n" \
 "audio-recorder\0icon\x1faudio-input-microphone\n" \
 "video-recorder\0icon\x1fcamera-video\n" \
-"pavucontrol\0icon\x1fmultimedia-volume-control"
-)
+"pavucontrol\0icon\x1fmultimedia-volume-control\n" \
+"Reboot\0icon\x1fsystem-reboot\n" \
+"Poweroff\0icon\x1fsystem-shutdown\n" \
+"Sleep\0icon\x1fsystem-suspend" | fuzzel --dmenu --prompt="  ")
 
-# Lancement du menu Fuzzel en mode dmenu
-sel=$(echo -e "$choices" | fuzzel --dmenu)
+confirm_action() {
+    confirm=$(printf "No\nYes" | fuzzel --dmenu --prompt="Confirm $1? " --width=20)
+    [[ "$confirm" == "Yes" ]]
+}
 
-# Exécution selon le choix (on utilise des patterns avec * pour ignorer l'icône dans le match)
 case "$sel" in
   Firefox*) firefox ;;
-  Thunar*) thunar ;;
   Foot*) foot ;;
   HTop*) foot htop ;;
   GoogleChrome*) google-chrome-stable ;;
   Brave*) brave ;;
-  Pinta*) pinta ;;
+  AzPainter*) azpainter ;;
   Mousepad*) mousepad ;;
   lf*) foot lf ;;
   audio-recorder*) foot audio-recorder ;;
   video-recorder*) foot grs-ui ;;
-  pavucontrol*) foot pavucontrol ;;
+  pavucontrol*) pavucontrol ;;
+  Reboot*)   confirm_action "Reboot" && systemctl reboot ;;
+  Poweroff*) confirm_action "Poweroff" && systemctl poweroff ;;
+  Sleep*)    confirm_action "Sleep" && systemctl suspend ;;
 esac
