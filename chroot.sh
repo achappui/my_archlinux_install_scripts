@@ -112,6 +112,7 @@ EnableNetworkConfiguration=true
 [Network]
 NameResolvingService=systemd
 EOF
+
 mkdir -p /var/lib/iwd
 cat <<EOF > /var/lib/iwd/${MY_WIFI_NAME}.psk
 [Security]
@@ -119,13 +120,7 @@ Passphrase=${MY_WIFI_PASSWORD}
 EOF
 chmod 600 /var/lib/iwd/${MY_WIFI_NAME}.psk
 chown root:root /var/lib/iwd/${MY_WIFI_NAME}.psk
-cat <<EOF > /etc/systemd/network/25-wireless.network
-[Match]
-Name=${MY_WIFI_INTERFACE}
 
-[Network]
-DHCP=yes
-EOF
 if [ -n "${MY_IS_WIFI_ACTIVATED}" ]; then
     systemctl enable iwd
 fi

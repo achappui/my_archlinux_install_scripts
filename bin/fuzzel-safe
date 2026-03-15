@@ -17,8 +17,52 @@ sel=$(printf '%b' \
 "Sleep\0icon\x1fsystem-suspend" | fuzzel --dmenu --prompt="  ")
 
 confirm_action() {
-    confirm=$(printf "No\nYes" | fuzzel --dmenu --prompt="Confirm $1? " --width=20)
+    confirm=$(printf "No\nYes" | fuzzel --dmenu --prompt="$1" --width=20)
     [[ "$confirm" == "Yes" ]]
+}
+
+connect_wifi() {
+
+    if ! systemctl is-active --quiet iwd; then
+      printf '%b' "Activate" | fuzzel --dmenu --prompt="Wifi Options " && systemctl enable --now iwd
+    fi
+
+    interface=$(iwctl device list | grep -m1 "station" | awk '{print $2}')
+    
+    chosen_ssid=$(
+      printf "Desactivate\n%s\n" "$(
+        iwctl station "$interface" get-networks |
+        sed -E 's/\x1b\[[0-9;]*m//g' |
+        awk 'NR>4 && NF {print ($1==">")?$2:$1}'
+      )" | fuzzel --dmenu --prompt="Select WiFi: "
+    )
+
+    if [ ${chosen_ssid} = "Desactivate" ]; then
+      systemctl disable --now iwd
+      return
+    fi
+
+    pass=$(fuzzel --dmenu --password="*" --prompt="Password for ${chosen_ssid}: ")
+    if [ -z "$pass" ]; then
+        return
+    fi
+    
+    iwctl station "${interface}" connect "${chosen_ssid}" --passphrase "${pass}"
+    
+    success=1
+    prompt="Password for ${chosen_ssid}: "
+    while [ $success -ne 0 ]; do
+        pass=$(fuzzel --dmenu --password="*" --prompt="${prompt}")
+        [ -z "$pass" ] && break
+        if iwctl station "$interface" connect "$chosen_ssid" --passphrase "$pass"; then
+            success=0
+        else
+            success=1
+            prompt="Connection failed for ${chosen_ssid}: "
+        fi
+    done
+
+
 }
 
 case "$sel" in
@@ -33,7 +77,7 @@ case "$sel" in
   audio-recorder*) foot audio-recorder ;;
   video-recorder*) foot grs-ui ;;
   pavucontrol*) pavucontrol ;;
-  Reboot*)   confirm_action "Reboot" && systemctl reboot ;;
-  Poweroff*) confirm_action "Poweroff" && systemctl poweroff ;;
-  Sleep*)    confirm_action "Sleep" && systemctl suspend ;;
+  Reboot*)   confirm_action "Confirm Reboot? " && systemctl reboot ;;
+  Poweroff*) confirm_action "Confirm Poweroff? " && systemctl poweroff ;;
+  Sleep*)    confirm_action "Confirm Sleep? " && systemctl suspend ;;
 esac
