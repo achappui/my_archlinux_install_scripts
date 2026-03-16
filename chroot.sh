@@ -113,20 +113,6 @@ EnableNetworkConfiguration=true
 NameResolvingService=systemd
 EOF
 
-mkdir -p /var/lib/iwd
-cat <<EOF > /var/lib/iwd/${MY_WIFI_NAME}.psk
-[Security]
-Passphrase=${MY_WIFI_PASSWORD}
-EOF
-chmod 600 /var/lib/iwd/${MY_WIFI_NAME}.psk
-chown root:root /var/lib/iwd/${MY_WIFI_NAME}.psk
-
-if [ -n "${MY_IS_WIFI_ACTIVATED}" ]; then
-    systemctl enable iwd
-fi
-
-fi
-
 #Setup docker
 systemctl enable docker
 usermod -aG docker ${MY_USER}

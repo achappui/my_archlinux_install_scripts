@@ -19,7 +19,4 @@ export MY_LOCALE="en_US.UTF-8 UTF-8"
 export MY_LANG="en_US.UTF-8"
 export MY_KEYMAP="us"
 
-export MY_IS_WIFI_SETUP="true"
-export MY_IS_WIFI_ACTIVATED="false"
-
 export SWAY_MONITORS=("output DP-4 pos 0 0 res 1920x1200@60Hz" "output HDMI-A-0 pos 1920 0 res 1920x1200@60Hz")

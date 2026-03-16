@@ -12,6 +12,7 @@ sel=$(printf '%b' \
 "audio-recorder\0icon\x1faudio-input-microphone\n" \
 "video-recorder\0icon\x1fcamera-video\n" \
 "pavucontrol\0icon\x1fmultimedia-volume-control\n" \
+"WiFi\0icon\x1fnetwork-wireless\n" \
 "Reboot\0icon\x1fsystem-reboot\n" \
 "Poweroff\0icon\x1fsystem-shutdown\n" \
 "Sleep\0icon\x1fsystem-suspend" | fuzzel --dmenu --prompt="  ")
@@ -58,7 +59,7 @@ connect_wifi() {
             success=0
         else
             success=1
-            prompt="Connection failed for ${chosen_ssid}: "
+            prompt="Connection failed try again: "
         fi
     done
 
@@ -80,4 +81,5 @@ case "$sel" in
   Reboot*)   confirm_action "Confirm Reboot? " && systemctl reboot ;;
   Poweroff*) confirm_action "Confirm Poweroff? " && systemctl poweroff ;;
   Sleep*)    confirm_action "Confirm Sleep? " && systemctl suspend ;;
+  Wifi*) connect_wifi ;;
 esac
