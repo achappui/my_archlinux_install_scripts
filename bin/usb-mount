@@ -15,7 +15,9 @@ if [ "$ACTION" = "add" ]; then
     mkdir -p "$MOUNT_POINT"
     mkdir -p ".${MOUNT_POINT}"
     echo "$(lsblk -no PKNAME $DEVNAME)" > "${BASE_SAVER}"
-    mount "$DEVNAME" "$MOUNT_POINT"
+    if ! findmnt -n -S "$DEVNAME" > /dev/null; then
+        mount "$DEVNAME" "$MOUNT_POINT"
+    fi
 elif [ "$ACTION" = "remove" ]; then
     MOUNT_POINT=$(grep "$(cat ${BASE_SAVER})" /proc/mounts | awk '{print $2}')
     if [ -n "${MOUNT_POINT}" ]; then

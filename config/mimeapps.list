@@ -39,6 +39,14 @@ application/x-gzip=open-archive.desktop
 application/x-bzip2=open-archive.desktop
 application/x-xz=open-archive.desktop
 application/x-7z-compressed=open-archive.desktop
+application/x-rar=open-archive.desktop
+application/vnd.rar=open-archive.desktop
+application/x-lzip=open-archive.desktop
+application/x-lzma=open-archive.desktop
+application/x-lz4=open-archive.desktop
+application/x-lzo=open-archive.desktop
+application/x-zstd=open-archive.desktop
+application/x-lrzip=open-archive.desktop
 
 # Dossiers et autres fichiers
 inode/directory=lf.desktop

@@ -4,5 +4,18 @@ Comment=Décompresse automatiquement les archives
 Exec=/usr/local/bin/open-archive %f
 Terminal=false
 Type=Application
-MimeType=application/zip;application/x-tar;application/x-gzip;application/x-bzip2;application/x-xz;application/x-7z-compressed;
+MimeType=application/zip;
+         application/x-tar;
+         application/x-gzip;
+         application/x-bzip2;
+         application/x-xz;
+         application/x-7z-compressed;
+         application/x-rar;
+         application/vnd.rar;
+         application/x-lzip;
+         application/x-lzma;
+         application/x-lz4;
+         application/x-lzo;
+         application/x-zstd;
+         application/x-lrzip;
 NoDisplay=false

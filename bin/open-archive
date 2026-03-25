@@ -1,29 +1,50 @@
 #!/usr/bin/env bash
 
 file="$1"
-base="${file##*/}"                  # nom du fichier
-base="${base%.*}"                   # sans extension
+# Error handling if no file is provided
+[ -z "$file" ] && echo "Usage: $0 file [destination]" && exit 1
+
+base="${file##*/}"                  # file name
+ext="${base##*.}"                   # raw extension
+name_only="${base%.*}"              # name without the last extension
 dest="${2:-.}"
 
-# Créer un dossier unique si nécessaire
-target="$dest/$base"
+# Create a unique directory
+target="$dest/${name_only}"
 n=1
 while [ -e "$target" ]; do
-    target="$dest/${base}_$n"
+    target="$dest/${name_only}_$n"
     ((n++))
 done
 mkdir -p "$target"
 
-# Extraction selon le type
+echo "Extracting $file to $target..."
+
 case "$file" in
-  *.zip) unzip "$file" -d "$target" ;;
-  *.tar) tar xf "$file" -C "$target" ;;
-  *.tar.gz|*.tgz) tar xzf "$file" -C "$target" ;;
-  *.tar.bz2) tar xjf "$file" -C "$target" ;;
-  *.tar.xz) tar xJf "$file" -C "$target" ;;
-  *.gz) gunzip -c "$file" > "$target/$base" ;;
-  *.bz2) bunzip2 -c "$file" > "$target/$base" ;;
-  *.xz) unxz -c "$file" > "$target/$base" ;;
-  *.7z) 7z x "$file" -o"$target" ;;
-  *) echo "Type non supporté" ;;
+    # --- Archives (Multi-file) ---
+    *.tar.gz|*.tgz)      tar -xzf "$file" -C "$target" ;;
+    *.tar.bz2|*.tbz2)    tar -xjf "$file" -C "$target" ;;
+    *.tar.xz|*.txz)      tar -xJf "$file" -C "$target" ;;
+    *.tar.zst|*.tzst)    tar --zstd -xf "$file" -C "$target" ;;
+    *.tar.lz4)           lz4 -d "$file" -c | tar -xf - -C "$target" ;;
+    *.tar.lzo)           lzop -d "$file" -c | tar -xf - -C "$target" ;;
+    *.tar)               tar -xf "$file" -C "$target" ;;
+    *.zip)               unzip -q "$file" -d "$target" ;;
+    *.7z)                7z x "$file" -o"$target" > /dev/null ;;
+    *.rar)               unrar x "$file" "$target" ;;
+    *.lrzip)             lrzip -d "$file" -o "$target/$name_only" ;;
+
+    # --- Simple Compressions (Single file) ---
+    # Redirecting output to the original name without extension
+    *.gz)                gunzip -c "$file" > "$target/$name_only" ;;
+    *.bz2)               bunzip2 -c "$file" > "$target/$name_only" ;;
+    *.xz)                unxz -c "$file" > "$target/$name_only" ;;
+    *.zst)               zstd -d "$file" -o "$target/$name_only" ;;
+    *.lz4)               lz4 -d "$file" "$target/$name_only" ;;
+    *.lzip)              lzip -d -c "$file" > "$target/$name_only" ;;
+    *.lzo)               lzop -d -c "$file" > "$target/$name_only" ;;
+    
+    *)                   echo "Unsupported or unknown format." ;;
 esac
+
+echo "Done."

@@ -27,10 +27,11 @@ set -euo pipefail
 
 systemctl --user enable --now pipewire pipewire-pulse wireplumber xdg-desktop-portal
 
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+
 xdg-user-dirs-update
 
 cat <<EOF >> /home/${USER}/.bashrc
-export GTK_THEME=Adwaita:dark
 
 alias 'vi'='nvim'
 alias 'sudo'='sudo '

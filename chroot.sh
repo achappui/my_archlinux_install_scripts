@@ -51,7 +51,7 @@ if ! echo ${GPU_DRIVERS} | grep -q ".aur"; then
     PACMAN_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/${GPU_DRIVERS}.list))
 fi
 
-if grep -q ${PROFILE} "papa"; then
+if grep -q ${PROFILE_NAME} "papa"; then
     PACMAN_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/printer.list))
 fi
 
@@ -62,6 +62,8 @@ echo "${MY_USER}:${MY_USER_PASSWORD}" | chpasswd
 sed -i "/^# *%wheel ALL=(ALL:ALL) ALL/s/^# *//" /etc/sudoers
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
+mkdir -p /home/${MY_USER}
+chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}
 sudo -u ${MY_USER} git clone https://aur.archlinux.org/yay.git /home/${MY_USER}/yay
 sudo -u ${MY_USER} makepkg -s --noconfirm --needed --dir /home/${MY_USER}/yay
 pacman -U --noconfirm --needed /home/${MY_USER}/yay/yay-*.pkg.tar.zst
@@ -75,7 +77,7 @@ if echo ${GPU_DRIVERS} | grep -q ".aur"; then
     AUR_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/${GPU_DRIVERS}.list))
 fi
 
-if grep -q ${PROFILE} "papa"; then
+if grep -q ${PROFILE_NAME} "papa"; then
     AUR_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/brother-MFC_L8690CDW.aur.list))
 fi
 
@@ -102,8 +104,6 @@ Name=${MY_WIRED_INTERFACE}
 DHCP=yes
 EOF
 
-if [ -n "${MY_IS_WIFI_SETUP}" ]; then
-MY_WIFI_INTERFACE=$(iw dev | awk '$1=="Interface"{print $2}')
 mkdir -p /etc/iwd
 cat <<'EOF' >> /etc/iwd/main.conf
 [General]
@@ -193,7 +193,7 @@ RemainAfterExit=yes
 EOF
 
 # Set up brother printer
-if grep -q ${PROFILE} "papa"; then
+if grep -q ${PROFILE_NAME} "papa"; then
     systemctl enable cups
     systemctl enable avahi-daemon
 
@@ -222,6 +222,10 @@ if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
     sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/&acpi_osi=Darwin reboot=pci /' /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
 fi
+
+#Prepare DNS properly
+rm -f /etc/resolv.conf
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 # Set ownership of user home and configs
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}

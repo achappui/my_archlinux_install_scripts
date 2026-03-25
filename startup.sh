@@ -33,8 +33,6 @@ MY_ROOT_PASSWORD=""
 MY_USER=""
 MY_USER_PASSWORD=""
 MY_PROFILE=""
-MY_WIFI_NAME=""
-MY_WIFI_PASSWORD=""
 
 # --- 2️⃣ Inputs utilisateur ---
 ask_input "Enter Hostname"              MY_HOSTNAME
@@ -44,11 +42,6 @@ ask_input "Enter User Password"         MY_USER_PASSWORD
 ask_profile "Available profiles:"       MY_PROFILE
 
 source "./profiles/${MY_PROFILE}.sh"
-
-if [ "${MY_IS_WIFI_SETUP}" = "true" ]; then
-  ask_input "Enter WiFi Name" MY_WIFI_NAME
-  ask_input "Enter WiFi Password" MY_WIFI_PASSWORD
-fi
 
 ask_boolean "All disks will be erased"  MY_ERASE_CONFIRMATION
 
@@ -79,8 +72,6 @@ export MY_HOSTNAME="${MY_HOSTNAME}"
 export MY_USER="${MY_USER}"
 export MY_USER_PASSWORD="${MY_USER_PASSWORD}"
 export MY_ROOT_PASSWORD="${MY_ROOT_PASSWORD}"
-export MY_WIFI_NAME="${MY_WIFI_NAME}"
-export MY_WIFI_PASSWORD="${MY_WIFI_PASSWORD}"
 EOF
 cp "./profiles/${MY_PROFILE}.sh" /mnt/root/profile.sh
 # Copy Applications
@@ -89,11 +80,13 @@ cp -r ./applications/* /mnt/usr/share/applications
 # Copy .config
 mkdir -p /mnt/home/${MY_USER}/.config
 cp -r ./config/* /mnt/home/${MY_USER}/.config
+chmod +x $(find /mnt/home/${MY_USER}/.config -type f -name "*.sh")
 # Copy Packages
 cp -r "./packages" /mnt/packages
 # Copy bin
 mkdir -p /mnt/usr/local/bin
 cp -r ./bin/* /mnt/usr/local/bin
+chmod +x /mnt/usr/local/bin/*
 # Copy scripts
 cp chroot.sh /mnt/chroot.sh
 chmod +x /mnt/chroot.sh

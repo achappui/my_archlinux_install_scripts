@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 
-sel=$(printf '%b' \
+WIFI_LIST_TMP_FILE=$(mktemp "$TEMP_DIR/fuzzel-wifi.XXXXXXXX")
+
+cleanup() {
+
+    if [ -f ${WIFI_LIST_TMP_FILE} ]; then
+        rm -f ${WIFI_LIST_TMP_FILE}
+    fi
+    exit
+}
+
+trap cleanup SIGINT SIGTERM
+
+
+ACTIONS=$(printf '%b' \
 "Firefox\0icon\x1ffirefox\n" \
 "Foot\0icon\x1ffoot\n" \
 "HTop\0icon\x1fhtop\n" \
@@ -12,61 +25,101 @@ sel=$(printf '%b' \
 "audio-recorder\0icon\x1faudio-input-microphone\n" \
 "video-recorder\0icon\x1fcamera-video\n" \
 "pavucontrol\0icon\x1fmultimedia-volume-control\n" \
-"WiFi\0icon\x1fnetwork-wireless\n" \
+"Wifi\0icon\x1fnetwork-wireless\n" \
 "Reboot\0icon\x1fsystem-reboot\n" \
 "Poweroff\0icon\x1fsystem-shutdown\n" \
-"Sleep\0icon\x1fsystem-suspend" | fuzzel --dmenu --prompt="  ")
+"Sleep\0icon\x1fsystem-suspend" | fuzzel --dmenu --no-mouse --prompt="  ")
 
 confirm_action() {
-    confirm=$(printf "No\nYes" | fuzzel --dmenu --prompt="$1" --width=20)
-    [[ "$confirm" == "Yes" ]]
+    CONFIRM=$(printf "No\nYes" | fuzzel --dmenu --no-mouse --prompt="> " --mesg "$1" --width=20)
+    [[ "${CONFIRM}" == "Yes" ]]
 }
+
+
+./16x16/panel/network-wireless-signal-excellent.svg
+./16x16/panel/network-wireless-signal-good.svg
+./16x16/panel/network-wireless-signal-ok.svg
+./16x16/panel/network-wireless-signal-low.svg
 
 connect_wifi() {
-
-    if ! systemctl is-active --quiet iwd; then
-      printf '%b' "Activate" | fuzzel --dmenu --prompt="Wifi Options " && systemctl enable --now iwd
-    fi
-
-    interface=$(iwctl device list | grep -m1 "station" | awk '{print $2}')
-    
-    chosen_ssid=$(
-      printf "Desactivate\n%s\n" "$(
-        iwctl station "$interface" get-networks |
-        sed -E 's/\x1b\[[0-9;]*m//g' |
-        awk 'NR>4 && NF {print ($1==">")?$2:$1}'
-      )" | fuzzel --dmenu --prompt="Select WiFi: "
-    )
-
-    if [ ${chosen_ssid} = "Desactivate" ]; then
-      systemctl disable --now iwd
-      return
-    fi
-
-    pass=$(fuzzel --dmenu --password="*" --prompt="Password for ${chosen_ssid}: ")
-    if [ -z "$pass" ]; then
-        return
-    fi
-    
-    iwctl station "${interface}" connect "${chosen_ssid}" --passphrase "${pass}"
-    
-    success=1
-    prompt="Password for ${chosen_ssid}: "
-    while [ $success -ne 0 ]; do
-        pass=$(fuzzel --dmenu --password="*" --prompt="${prompt}")
-        [ -z "$pass" ] && break
-        if iwctl station "$interface" connect "$chosen_ssid" --passphrase "$pass"; then
-            success=0
+    iwctl station "$(iwctl device list | grep -m1 "station" | awk '{print $2}')" get-networks | sed -E 's/\x1b\[[0-9;]*m//g; 1,4d; /^[[:space:]]*$/d; s/^>[[:space:]]*//; s/^[[:space:]]*([^[:space:]]+).*/\1/'
+    wifi_list_page_actions() {
+        echo $(iwctl station "${INTERFACE}" get-networks | sed -E 's/\x1b\[[0-9;]*m//g' | awk 'NR>4 && NF {print ($1==">")?$2:$1}') > ${WIFI_LIST_TMP_FILE}
+        WIFI_LIST=$(cat ${WIFI_LIST_TMP_FILE} | sed -E 's/\x1b\[[0-9;]*m//g' | awk 'NR>4 && NF {print ($1==">")?$2:$1}')
+        WIFI_LIST_STARS=$(cat ${WIFI_LIST_TMP_FILE} | awk 'NR>4 && $NF {print $NF}' | sed -E 's/^(\**).*/\1/')
+        CONNECTED_WIFI=$(iwctl station ${INTERFACE} show | grep "Connected network" | awk '{print $3}')
+        if [ -n "${WIFI_LIST}" ]; then
+            printf '%s\n' ${FUZZEL_ACTIONS}
+            i=0
+            echo "${WIFI_LIST}" | while IFS= read -r line; do
+                echo "Index $i : $line"
+                i=$((i + 1))
+            done
         else
-            success=1
-            prompt="Connection failed try again: "
+            printf '%b' ${FUZZEL_ACTIONS}
         fi
+    }
+
+    INTERFACE=$(iwctl device list | grep -m1 "station" | awk '{print $2}')
+    STATE="ACTIVATION_PAGE"
+    if systemctl is-active --quiet iwd; then
+        STATE="WIFI_LIST_PAGE"
+    fi
+    while true; do
+    #each state is a window    
+    case $STATE in
+        "ACTIVATION_PAGE")
+            FUZZEL_ACTIONS="Quit\nActivate"
+            CHOSEN_ACTION=$(printf '%b' ${FUZZEL_ACTIONS}) | fuzzel --dmenu --no-mouse --prompt="> " --mesg "Wifi Options"
+            if [ "${CHOSEN_ACTION}" = "Quit" ]; then
+                break
+            elif [ "${CHOSEN_ACTION}" = "Activate" ]; then
+                if [ -z ${INTERFACE} ]; then
+                    STATE="NO_INTERFACE_PAGE"
+                else
+                    systemctl enable --now iwd
+                    STATE="WIFI_LIST_PAGE"
+                fi
+            fi
+            ;;
+        "NO_INTERFACE_PAGE")
+            if [ -z ${INTERFACE} ]; then
+                fuzzel --dmenu --no-mouse --mesg "No Wireless Interface." --message-color=ff0000ff --hide-prompt --line 0
+                STATE="ACTIVATION_PAGE"
+            fi
+            ;;
+        "WIFI_LIST_PAGE")
+            FUZZEL_ACTIONS="Quit\nDesactivate"
+            CHOSEN_ACTION=$(wifi_list_page_actions | fuzzel --dmenu --no-mouse --prompt="> " --mesg "Wifi Options | Connected to: ${CONNECTED_WIFI:-"none"}")
+            if [ ${CHOSEN_ACTION} = "Quit" ]
+                break
+            elif [ ${CHOSEN_ACTION} = "Desactivate" ]; then
+                systemctl disable --now iwd
+                STATE="ACTIVATION_PAGE"
+            fi
+            ;;
+        "WIFI_PASSWORD_PAGE")
+            PASSWORD_WRITTEN=$(fuzzel --dmenu --no-mouse --password="*" --prompt="Password for ${chosen_ssid}: ")
+            if ! iwctl station "${INTERFACE}" connect "${CHOSEN_ACTION}" --passphrase "${pass}" > /dev/null 2>&1;
+                STATE="CONNECTION_FAILED_PAGE"
+            else
+                STATE="CONNECTION_SUCCEDED_PAGE"
+            fi
+            ;;
+        "CONNECTION_FAILED_PAGE")
+            fuzzel --dmenu --no-mouse --mesg "Connection Failed Try Again !" --message-color=ff0000ff --hide-prompt --line 0
+            STATE="WIFI_LIST_PAGE"
+            ;;
+        "CONNECTION_SUCCEDED_PAGE")
+            fuzzel --dmenu --no-mouse --mesg "Connection Succeeded !" --message-color=00ff00ff --hide-prompt --line 0
+            STATE="WIFI_LIST_PAGE"
+            ;;
+    esac
+
     done
-
-
 }
 
-case "$sel" in
+case "${ACTIONS}" in
   Firefox*) firefox ;;
   Foot*) foot ;;
   HTop*) foot htop ;;
@@ -76,7 +129,7 @@ case "$sel" in
   Mousepad*) mousepad ;;
   lf*) foot lf ;;
   audio-recorder*) foot audio-recorder ;;
-  video-recorder*) foot grs-ui ;;
+  video-recorder*) foot video-recorder ;;
   pavucontrol*) pavucontrol ;;
   Reboot*)   confirm_action "Confirm Reboot? " && systemctl reboot ;;
   Poweroff*) confirm_action "Confirm Poweroff? " && systemctl poweroff ;;

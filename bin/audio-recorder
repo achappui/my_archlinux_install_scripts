@@ -19,11 +19,13 @@ if [ -z "${NAME}" ]; then
     NAME="audio_$(date +%Y-%m-%d_%H-%M-%S)"
 fi
 
-FILENAME="${NAME}.wav"
+EXTENTION="wav"
+
+FILENAME="${NAME}.${EXTENTION}"
 
 COUNTER=1
 while [ -e "${OUTPUT_DIR}/${FILENAME}" ]; do
-    FILENAME="${NAME}_${COUNTER}.wav"
+    FILENAME="${NAME}_${COUNTER}.${EXTENTION}"
     COUNTER=$((COUNTER + 1))
 done
 

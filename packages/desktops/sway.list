@@ -30,8 +30,6 @@ pipewire-jack
 wireplumber
 mpv
 swayimg
-gpu-screen-recorder
-gpu-screen-recorder-ui
 
 # --------------------------------------------------
 # Browser

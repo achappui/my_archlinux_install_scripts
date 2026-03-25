@@ -28,7 +28,7 @@ while true; do
         fi
     done
 
-    echo "wifi: $wifi_status | $CPU: $cpu_usage% | RAM: $mem_info$all_disks | $date_time"
+    echo "WIFI: $wifi_status | CPU: $cpu_usage% | RAM: $mem_info$all_disks | $date_time"
 
     sleep 5
 done
