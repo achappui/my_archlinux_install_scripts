@@ -28,6 +28,8 @@ set -euo pipefail
 source /root/env.sh
 source /root/profile.sh
 
+pacman-key --init
+pacman-key --populate archlinux
 #Setup basic things
 ln -sf /usr/share/zoneinfo/${MY_CLOCK_REGION} /etc/localtime
 hwclock --systohc
@@ -51,7 +53,7 @@ if ! echo ${GPU_DRIVERS} | grep -q ".aur"; then
     PACMAN_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/${GPU_DRIVERS}.list))
 fi
 
-if grep -q ${PROFILE_NAME} "papa"; then
+if echo ${PROFILE_NAME} | grep -q "papa"; then
     PACMAN_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/printer.list))
 fi
 
@@ -77,11 +79,15 @@ if echo ${GPU_DRIVERS} | grep -q ".aur"; then
     AUR_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/${GPU_DRIVERS}.list))
 fi
 
-if grep -q ${PROFILE_NAME} "papa"; then
+if echo ${PROFILE_NAME} | grep -q "papa"; then
     AUR_PKGS+=($(grep -vE '^\s*#|^\s*$' /packages/drivers/brother-MFC_L8690CDW.aur.list))
 fi
 
 sudo -u ${MY_USER} yay -S --noconfirm --needed "${AUR_PKGS[@]}"
+
+BUN_PKGS= $(grep -vE '^\s*#|^\s*$' /packages/base.bun.list)
+
+sudo -u ${MY_USER} bun -g "${BUN_PKGS[@]}"
 
 sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers
 
@@ -193,11 +199,12 @@ RemainAfterExit=yes
 EOF
 
 # Set up brother printer
-if grep -q ${PROFILE_NAME} "papa"; then
+if echo ${PROFILE_NAME} | grep -q "papa"; then
     systemctl enable cups
     systemctl enable avahi-daemon
 
-    sed -i 's/mymachines /mymachines mdns_minimal [NOTFOUND=return] /' /etc/nsswitch.conf
+
+    sed -i -E 's/^hosts:.*/hosts: files mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] dns myhostname/' /etc/nsswitch.conf
 
     PRINTER_URL="dnssd://Brother%20MFC-L8690CDW%20series._ipp._tcp.local/?uuid=e3248000-80ce-11db-8000-3c2af4f5323b"
     lpadmin -p Brother_MFC_L8690CDW \
@@ -213,19 +220,6 @@ fi
 # Install bootloader and generate config
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
-
-#Fix imac auto reboot and power up (Deprecated, useless)
-if [ "${PROFILE_NAME}" = "home_papa_imac" ]; then
-    echo "ARPT" | tee "/proc/acpi/wakeup"
-    echo "GIGE" | tee "/proc/acpi/wakeup"
-    echo "XHC1" | tee "/proc/acpi/wakeup"
-    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/&acpi_osi=Darwin reboot=pci /' /etc/default/grub
-    grub-mkconfig -o /boot/grub/grub.cfg
-fi
-
-#Prepare DNS properly
-rm -f /etc/resolv.conf
-ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 # Set ownership of user home and configs
 chown -R ${MY_USER}:${MY_USER} /home/${MY_USER}

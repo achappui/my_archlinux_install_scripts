@@ -2,6 +2,7 @@
 # Printer Dependencies
 # --------------------------------------------------
 cups
+cups-filters
 ghostscript
 gsfonts
 avahi

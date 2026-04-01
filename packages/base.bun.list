@@ -1,0 +1,10 @@
+
+# --------------------------------------------------
+# bun packages
+# --------------------------------------------------
+
+bash-language-server
+vscode-langservers-extracted
+pyright
+typescript
+typescript-language-server

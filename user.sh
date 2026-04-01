@@ -35,6 +35,7 @@ cat <<EOF >> /home/${USER}/.bashrc
 
 alias 'vi'='nvim'
 alias 'sudo'='sudo '
+alias 'ls --color=auto'
 EOF
 
 source /home/${USER}/.bashrc

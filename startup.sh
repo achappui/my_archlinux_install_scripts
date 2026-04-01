@@ -98,5 +98,7 @@ rm /mnt/chroot.sh
 rm -rf /mnt/root/profile.sh
 rm -rf /mnt/root/env.sh
 rm -rf /mnt/packages
+rm -f /mnt/etc/resolv.conf
+ln -sf /mnt/run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 umount -R /mnt
 reboot

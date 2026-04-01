@@ -6,13 +6,10 @@ gcc
 make
 git
 python
-python-flake8
-shellcheck
-tidy
-typescript
-stylelint
 go
 rust
+clang
+bun
 
 # --------------------------------------------------
 # CLI utilities
@@ -26,13 +23,12 @@ man-db
 man-pages
 texinfo
 nvim
-lf
 chafa
 bat
 ffmpeg
 ffmpegthumbnailer
 mupdf-tools
-vivid
+lf
 
 # --------------------------------------------------
 # Compression / archives
