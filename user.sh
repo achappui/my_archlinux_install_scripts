@@ -33,6 +33,7 @@ xdg-user-dirs-update
 
 cat <<EOF >> /home/${USER}/.bashrc
 
+export PATH="/home/${USER}/.bun/bin:${PATH}"
 alias 'vi'='nvim'
 alias 'sudo'='sudo '
 alias 'ls --color=auto'

@@ -85,9 +85,16 @@ fi
 
 sudo -u ${MY_USER} yay -S --noconfirm --needed "${AUR_PKGS[@]}"
 
-BUN_PKGS= $(grep -vE '^\s*#|^\s*$' /packages/base.bun.list)
+BUN_PKGS=$(grep -vE '^\s*#|^\s*$' /packages/base.bun.list)
 
 sudo -u ${MY_USER} bun -g "${BUN_PKGS[@]}"
+
+if [ -n "${MY_GIT_EMAIL}" ]; then
+    sudo -u ${MY_USER} git config --global "${MY_GIT_EMAIL}"
+fi
+if [ -n "${MY_GIT_NAME}" ]; then
+    sudo -u ${MY_USER} git config --global "${MY_GIT_NAME}"
+fi
 
 sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers
 

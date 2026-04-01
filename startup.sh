@@ -39,6 +39,8 @@ ask_input "Enter Hostname"              MY_HOSTNAME
 ask_input "Enter Root Password"         MY_ROOT_PASSWORD
 ask_input "Enter User Name"             MY_USER
 ask_input "Enter User Password"         MY_USER_PASSWORD
+ask_input "Enter Git email"             MY_GIT_EMAIL
+ask_input "Enter Git name"              MY_GIT_NAME
 ask_profile "Available profiles:"       MY_PROFILE
 
 source "./profiles/${MY_PROFILE}.sh"
@@ -72,6 +74,8 @@ export MY_HOSTNAME="${MY_HOSTNAME}"
 export MY_USER="${MY_USER}"
 export MY_USER_PASSWORD="${MY_USER_PASSWORD}"
 export MY_ROOT_PASSWORD="${MY_ROOT_PASSWORD}"
+export MY_GIT_EMAIL="${MY_GIT_EMAIL}"
+export MY_GIT_NAME="${MY_GIT_NAME}"
 EOF
 cp "./profiles/${MY_PROFILE}.sh" /mnt/root/profile.sh
 # Copy Applications
